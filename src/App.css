@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+.button-primary {
+  @apply bg-blue-200 uppercase px-2 py-1 text-white font-semibold;
+}
+
+.button-outlined {
+  @apply border-blue-200 uppercase px-2 py-1 text-blue-200 font-semibold;
+}
+
+.button-danger {
+  @apply bg-orange-400 text-white uppercase px-2 py-1 font-semibold;
+}
+
+.month-view {
+  @apply grid grid-cols-7 gap-2;
+}
+
+.week-view {
+  @apply flex gap-2;
+}
