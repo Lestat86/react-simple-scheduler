@@ -19,3 +19,30 @@
 .week-view {
   @apply flex gap-2;
 }
+
+.calendar-day {
+  @apply z-10 absolute top-0 bottom-0 right-0 left-0 bg-green-100/15;
+
+  &.excluded {
+    @apply bg-red-200/75;
+  }
+}
+
+.hour-slot {
+  @apply z-10 absolute top-0 bottom-0 right-0 left-0 bg-green-100/15;
+
+  &.excluded {
+    @apply bg-red-200/75;
+  }
+
+  &.booked {
+    @apply bg-blue-200/15;
+  }
+}
+
+.day-component {
+  @apply p-4 w-20 h-20 border border-gray-200 flex items-center justify-center relative;
+  &.week {
+    @apply px-4 w-20 h-10;
+  }
+}

@@ -21,6 +21,9 @@ import { it } from 'date-fns/locale'
 import ModeSelector from './calendar/mode-selector'
 import PlaceHolderDayComponent from './calendar/placeholder-days'
 import CalendarHeader from './calendar/calendar-header'
+import { appointments, exampleConfig } from '../utils/mocks'
+import HourSlot from './calendar/hours-slot'
+import { tHours, tTimeFormat } from '../types/data-types'
 
 type Props = {
   isEditor?: boolean
@@ -148,8 +151,27 @@ const CalendarContainer = ({ isEditor }: Props) => {
     // no default
   }
 
+  const exclusionsSet = new Set<number>()
+
+  exampleConfig.timeExclusions?.forEach((current) => {
+    const { exclusionStart, exclusionEnd } = current
+
+    exclusionsSet.add(exclusionStart.hours)
+    exclusionsSet.add(exclusionEnd.hours)
+  })
+
+  const sortedExclusions = [...exclusionsSet].sort().filter((current) => current !== 0)
+
+  const min = sortedExclusions[sortedExclusions.length - 1]
+  const max = sortedExclusions[0]
+
+
+  const hoursSlots = [...Array(24).keys()].filter((current) => current >= min && current <= max)
+
+  const isWeekMode = calendarMode === CALENDAR_MODES.WEEK
+
   return (
-    <div className='flex flex-col p-4'>
+    <div className='flex flex-col p-4 gap-2 h-[90vh]'>
       <ModeSelector options={modeOptions} />
       <CalendarControls prevFun={prevFun} nextFun={nextFun} currentValue={monthName} />
       <CalendarHeader />
@@ -157,11 +179,45 @@ const CalendarContainer = ({ isEditor }: Props) => {
         <PlaceHolderDayComponent placeHolderDays={startPlaceHoldersDays} />
         {
           days.map((current, idx) => (
-            <DayComponent currentValue={current} key={`day_${idx}`} />
+            <DayComponent
+              key={`day_${idx}`}
+              isWeek={isWeekMode}
+              currentValue={current}
+              dayClickFun={console.log}
+              configuration={exampleConfig}
+            />
           ))
         }
         <PlaceHolderDayComponent placeHolderDays={endPlaceHoldersDays} />
       </div>
+      {isWeekMode && <div className='flex gap-3 overflow-y-auto'>
+        <div className="flex gap-2">
+          {
+            days.map((currentDate, idx) => (
+              <div className="flex flex-col gap-1" key={`day_${idx}`}>
+                {
+                  hoursSlots.map((currentHour) => {
+                    const currentValue: tTimeFormat = {
+                      hours: currentHour as tHours,
+                      minutes: 0
+                    }
+
+                    return (
+                      <HourSlot key={`${currentDate}_${currentHour}`}
+                        currentDate={currentDate}
+                        currentValue={currentValue}
+                        selectFun={console.log}
+                        configuration={exampleConfig}
+                        appointments={appointments}
+                      />
+                    )
+                  })
+                }
+              </div>
+            ))
+          }
+        </div>
+      </div>}
     </div >
   )
 }
