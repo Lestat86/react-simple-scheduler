@@ -26,8 +26,13 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       '@stylistic/semi': ['error', 'never'],
-      '@stylistic/max-len': ["error", { "code": 100 }],
-      '@stylistic/no-multiple-empty-lines': "error",
+      '@stylistic/max-len': ["error", {
+        "code": 100,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true,
+      }],
+      "@stylistic/no-multiple-empty-lines": ["error", { "max": 2, "maxEOF": 0 }]
     },
   },
 )
