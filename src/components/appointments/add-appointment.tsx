@@ -6,6 +6,7 @@ import TimePicker from './time-picker'
 import { findMatchingAppointment, slotIsBooked } from '../../utils/misc'
 import InputWithError from '../input-with-error'
 import { tAppoinmentErrors } from '../../types/misc'
+import AppointmentDescription from './appointment-description'
 
 type Props = {
   startHour?: tHours
@@ -13,6 +14,7 @@ type Props = {
   selectedDate: Date
   hoursSlot: tHours[]
   appointments: tAppointment[]
+  appointmentReasons?: string[]
 }
 
 const AddAppointment = ({
@@ -20,7 +22,8 @@ const AddAppointment = ({
   addAppointmentFun,
   selectedDate,
   hoursSlot,
-  appointments
+  appointments,
+  appointmentReasons
 }: Props) => {
   const canSelectTime = startHour === undefined
 
@@ -132,11 +135,11 @@ const AddAppointment = ({
             disabled={hasAppointment}
             errorMessage={errors.title}
           />
-          <InputWithError<string> value={description}
-            onChangeCB={setDescription}
-            label="Description"
-            disabled={hasAppointment}
-          />
+          <AppointmentDescription
+            appointmentReasons={appointmentReasons}
+            currentDescription={description}
+            setDescription={setDescription}
+            disabled={hasAppointment} />
         </div>
         <div className="flex flex-col gap-4">
           <InputWithError<string> value={name}

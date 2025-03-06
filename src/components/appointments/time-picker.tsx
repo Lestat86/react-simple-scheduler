@@ -31,7 +31,7 @@ const TimePicker = ({ selectedHour,
   return (
     <div className="flex gap-1">
       <span>{formattedDate} dalle ore</span>
-      <select name="cars" id="cars" onChange={onHourChange}>
+      <select name="startingHour" id="startingHour" onChange={onHourChange}>
         {hoursSlot.map((hour) => (
           <option value={hour} key={hour}>{hour}</option>
         ))}

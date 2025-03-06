@@ -27,15 +27,19 @@ import AddAppointment from './appointments/add-appointment'
 import ModalWrapper from './modal-wrapper'
 
 type Props = {
-  isEditor?: boolean
   appointments: tAppointment[]
   addAppointmentFun: (appointment: tAppointment) => void
   config: tConfiguration
+  appointmentReasons?: string[]
   // TODO: limit past dates in appointment selection, as a boolean option
 }
 
-const CalendarContainer = ({ isEditor, appointments, addAppointmentFun, config }: Props) => {
-  console.log('isEditor', isEditor)
+const CalendarContainer = ({
+  appointments,
+  addAppointmentFun,
+  config,
+  appointmentReasons
+}: Props) => {
   const now = new Date()
   const [currentDate, setCurrentDate] = useState(now)
   const [currentSlot, setCurrentSlot] = useState<tHours | undefined>()
@@ -216,6 +220,7 @@ const CalendarContainer = ({ isEditor, appointments, addAppointmentFun, config }
           selectedDate={selectedDate!}
           hoursSlot={hoursSlots}
           appointments={appointments}
+          appointmentReasons={appointmentReasons}
         />
       </ModalWrapper>
       <ModeSelector options={modeOptions} />

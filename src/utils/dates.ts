@@ -45,10 +45,3 @@ export const getEnclosingWeekDays = (current: Date) => {
 
   return days
 }
-
-// TODO: this will evolve with allowed times, ecc ecc
-export const getTimeSlots = (startTime: Date, endTime: Date) => {
-  const slots = eachHourOfInterval({ start: startTime, end: endTime })
-
-  return slots
-}
