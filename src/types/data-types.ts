@@ -27,5 +27,8 @@ export type tAppointment = {
   dateStart: Date
   dateEnd: Date
   title: string
+  name: string
+  phone: string
+  email?: string
   description?: string
 }
