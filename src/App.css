@@ -21,18 +21,22 @@
 }
 
 .calendar-day {
-  @apply z-10 absolute top-0 bottom-0 right-0 left-0 bg-green-100/15;
+  @apply z-10 absolute top-0 bottom-0 right-0 left-0 bg-green-100/15 cursor-pointer;
 
   &.excluded {
-    @apply bg-red-200/75;
+    @apply bg-red-200/75 cursor-not-allowed;
+  }
+
+  &.booked {
+    @apply bg-blue-200/15;
   }
 }
 
 .hour-slot {
-  @apply z-10 absolute top-0 bottom-0 right-0 left-0 bg-green-100/15;
+  @apply z-10 absolute top-0 bottom-0 right-0 left-0 bg-green-100/15 cursor-pointer;
 
   &.excluded {
-    @apply bg-red-200/75;
+    @apply bg-red-200/75 cursor-not-allowed;
   }
 
   &.booked {
@@ -42,6 +46,7 @@
 
 .day-component {
   @apply p-4 w-20 h-20 border border-gray-200 flex items-center justify-center relative;
+
   &.week {
     @apply px-4 w-20 h-10;
   }

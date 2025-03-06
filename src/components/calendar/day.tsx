@@ -1,21 +1,31 @@
 import { getDate } from 'date-fns'
 import React from 'react'
-import { tConfiguration, tDay } from '../../types/data-types'
+import { tAppointment, tConfiguration, tDay } from '../../types/data-types'
+import { dayHasAppointments } from '../../utils/misc'
 
 type Props = {
-  isEditor?: boolean
   isWeek?: boolean
   currentValue: Date
   dayClickFun: (current: Date) => void
   configuration: tConfiguration
+  appointments: tAppointment[]
 }
 
-const DayComponent = ({ isEditor, isWeek, currentValue, dayClickFun, configuration }: Props) => {
-  console.log('isEditor', isEditor)
+const DayComponent = ({ isWeek,
+  currentValue,
+  dayClickFun,
+  configuration,
+  appointments
+}: Props) => {
 
   const isExcluded = configuration.dayExclusions?.includes(currentValue.getDay() as tDay)
 
-  const classNameInner = isExcluded ? 'calendar-day excluded' : 'calendar-day'
+  const hasAppointment = dayHasAppointments(appointments, currentValue)
+
+  const excludedClass = isExcluded ? ' excluded' : ''
+  const bookedClass = hasAppointment ? ' booked' : ''
+
+  const classNameInner = `calendar-day${excludedClass}${bookedClass}`
   const classNameOuter = isWeek ? 'day-component week' : 'day-component'
 
   const onClick = () => {

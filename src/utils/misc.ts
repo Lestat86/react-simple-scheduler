@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { tAppointment, tTimeFormat } from "../types/data-types"
 
 export const notNullishCheck = (value: unknown): value is NonNullable<unknown> => {
@@ -32,4 +33,20 @@ export const slotIsBooked = (appointments: tAppointment[],
   )
 
   return matchingAppointment !== undefined
+}
+
+export const dayHasAppointments = (appointments: tAppointment[], currentDate: Date) => {
+  const formattedCurrent = format(currentDate, 'dd/MM/yyyy')
+
+  const found = appointments.some((current) => {
+    const formattedStart = format(current.dateStart, 'dd/MM/yyyy')
+    const formattedEnd = format(current.dateEnd, 'dd/MM/yyyy')
+
+    const startIncluded = formattedStart === formattedCurrent
+    const endIncluded = formattedEnd === formattedCurrent
+
+    return startIncluded || endIncluded
+  })
+
+  return found
 }

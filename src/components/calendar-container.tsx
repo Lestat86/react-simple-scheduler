@@ -235,6 +235,7 @@ const CalendarContainer = ({ isEditor, appointments, addAppointmentFun, config }
               currentValue={current}
               dayClickFun={selectDay}
               configuration={config}
+              appointments={appointments}
             />
           ))
         }
