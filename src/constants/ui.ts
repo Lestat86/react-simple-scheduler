@@ -1,6 +1,6 @@
 import { format } from "date-fns"
 import { it } from "date-fns/locale"
-import { getWeekDays } from "../utils/get-week-days"
+import { getEnclosingWeekDays } from "../utils/dates"
 
 export const BUTTON_VARIANTS = {
   PRIMARY: 'PRIMARY',
@@ -8,4 +8,4 @@ export const BUTTON_VARIANTS = {
   DANGER: 'DANGER',
 } as const
 
-export const DAYS = getWeekDays(new Date()).map((current) => format(current, 'iii', { locale: it }))
+export const DAYS = getEnclosingWeekDays(new Date()).map((current) => format(current, 'iii', { locale: it }))

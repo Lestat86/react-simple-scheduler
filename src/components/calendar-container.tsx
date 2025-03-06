@@ -129,6 +129,10 @@ const CalendarContainer = ({ isEditor, appointments, addAppointmentFun, config }
     }
   }
 
+  const goToTodayFun = () => {
+    setCurrentDate(now)
+  }
+
   const setMonthMode = () => setCalendarMode(CALENDAR_MODES.MONTH)
   const setWeekMode = () => setCalendarMode(CALENDAR_MODES.WEEK)
 
@@ -215,7 +219,11 @@ const CalendarContainer = ({ isEditor, appointments, addAppointmentFun, config }
         />
       </ModalWrapper>
       <ModeSelector options={modeOptions} />
-      <CalendarControls prevFun={prevFun} nextFun={nextFun} currentValue={monthName} />
+      <CalendarControls prevFun={prevFun}
+        nextFun={nextFun}
+        todayFun={goToTodayFun}
+        currentValue={monthName}
+      />
       <CalendarHeader />
       <div className={className}>
         <PlaceHolderDayComponent placeHolderDays={startPlaceHoldersDays} />
