@@ -21,18 +21,25 @@ import { it } from 'date-fns/locale'
 import ModeSelector from './calendar/mode-selector'
 import PlaceHolderDayComponent from './calendar/placeholder-days'
 import CalendarHeader from './calendar/calendar-header'
-import { appointments, exampleConfig } from '../utils/mocks'
 import HourSlot from './calendar/hours-slot'
-import { tHours, tTimeFormat } from '../types/data-types'
+import { tAppointment, tConfiguration, tHours, tTimeFormat } from '../types/data-types'
+import AddAppointment from './appointments/add-appointment'
+import ModalWrapper from './modal-wrapper'
 
 type Props = {
   isEditor?: boolean
+  appointments: tAppointment[]
+  addAppointmentFun: (appointment: tAppointment) => void
+  config: tConfiguration
+  // TODO: limit past dates in appointment selection, as a boolean option
 }
 
-const CalendarContainer = ({ isEditor }: Props) => {
+const CalendarContainer = ({ isEditor, appointments, addAppointmentFun, config }: Props) => {
   console.log('isEditor', isEditor)
   const now = new Date()
   const [currentDate, setCurrentDate] = useState(now)
+  const [currentSlot, setCurrentSlot] = useState<tHours | undefined>()
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>()
   const [calendarMode, setCalendarMode] = useState<tCalendarModes>(CALENDAR_MODES.WEEK)
   const [days, setDays] = useState<Date[]>([])
   const [startPlaceHoldersDays, setStartPlaceHoldersDays] = useState(0)
@@ -151,9 +158,29 @@ const CalendarContainer = ({ isEditor }: Props) => {
     // no default
   }
 
+  const selectSlot = (current: tTimeFormat, selectedDate: Date) => {
+    setCurrentSlot(current.hours)
+    setSelectedDate(selectedDate)
+  }
+
+  const resetSelectedSlot = () => {
+    setCurrentSlot(undefined)
+    setSelectedDate(undefined)
+  }
+
+  const selectDay = (selectedDate: Date) => {
+    setSelectedDate(selectedDate)
+  }
+
+  const internalAddAppointmentFun = (appointment: tAppointment) => {
+    addAppointmentFun(appointment)
+
+    resetSelectedSlot()
+  }
+
   const exclusionsSet = new Set<number>()
 
-  exampleConfig.timeExclusions?.forEach((current) => {
+  config.timeExclusions?.forEach((current) => {
     const { exclusionStart, exclusionEnd } = current
 
     exclusionsSet.add(exclusionStart.hours)
@@ -162,16 +189,31 @@ const CalendarContainer = ({ isEditor }: Props) => {
 
   const sortedExclusions = [...exclusionsSet].sort().filter((current) => current !== 0)
 
-  const min = sortedExclusions[sortedExclusions.length - 1]
-  const max = sortedExclusions[0]
+  const minExclusion = sortedExclusions[sortedExclusions.length - 1]
+  const maxExclusion = sortedExclusions[0]
 
-
-  const hoursSlots = [...Array(24).keys()].filter((current) => current >= min && current <= max)
+  const hoursSlots: tHours[] = ([...Array(24).keys()] as tHours[])
+    .filter((current) => current >= minExclusion && current <= maxExclusion)
 
   const isWeekMode = calendarMode === CALENDAR_MODES.WEEK
+  const slotSelected = currentSlot !== undefined
+  const daySelected = selectedDate !== undefined
+
+  const showAppointmentModal = isWeekMode ? slotSelected : daySelected
 
   return (
     <div className='flex flex-col p-4 gap-2 h-[90vh]'>
+      <ModalWrapper show={showAppointmentModal}
+        closeFun={resetSelectedSlot}
+        title="Appuntamento">
+        <AddAppointment
+          startHour={currentSlot}
+          addAppointmentFun={internalAddAppointmentFun}
+          selectedDate={selectedDate!}
+          hoursSlot={hoursSlots}
+          appointments={appointments}
+        />
+      </ModalWrapper>
       <ModeSelector options={modeOptions} />
       <CalendarControls prevFun={prevFun} nextFun={nextFun} currentValue={monthName} />
       <CalendarHeader />
@@ -183,8 +225,8 @@ const CalendarContainer = ({ isEditor }: Props) => {
               key={`day_${idx}`}
               isWeek={isWeekMode}
               currentValue={current}
-              dayClickFun={console.log}
-              configuration={exampleConfig}
+              dayClickFun={selectDay}
+              configuration={config}
             />
           ))
         }
@@ -206,8 +248,8 @@ const CalendarContainer = ({ isEditor }: Props) => {
                       <HourSlot key={`${currentDate}_${currentHour}`}
                         currentDate={currentDate}
                         currentValue={currentValue}
-                        selectFun={console.log}
-                        configuration={exampleConfig}
+                        selectFun={selectSlot}
+                        configuration={config}
                         appointments={appointments}
                       />
                     )

@@ -37,17 +37,21 @@ export const exampleConfig: tConfiguration = {
   timeExclusions
 }
 
-export const appointments: tAppointment[] = [
+export const exampleAppointments: tAppointment[] = [
   {
     title: 'Event 1',
     description: 'Descr',
     dateStart: new Date('2025-02-12T15:00:00Z'),
-    dateEnd: new Date('2025-02-12T17:00:00Z')
+    dateEnd: new Date('2025-02-12T17:00:00Z'),
+    name: 'Test name',
+    phone: '12345'
   },
   {
     title: 'Event 2',
     description: 'Descr',
     dateStart: new Date('2025-02-13T15:00:00Z'),
-    dateEnd: new Date('2025-02-13T16:00:00Z')
+    dateEnd: new Date('2025-02-13T16:00:00Z'),
+    name: 'Test name 2',
+    phone: '12345'
   }
 ]

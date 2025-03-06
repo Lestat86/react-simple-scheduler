@@ -13,20 +13,22 @@ type Props = {
 const DayComponent = ({ isEditor, isWeek, currentValue, dayClickFun, configuration }: Props) => {
   console.log('isEditor', isEditor)
 
-  const onClick = () => {
-    dayClickFun(currentValue)
-  }
-
   const isExcluded = configuration.dayExclusions?.includes(currentValue.getDay() as tDay)
 
   const classNameInner = isExcluded ? 'calendar-day excluded' : 'calendar-day'
   const classNameOuter = isWeek ? 'day-component week' : 'day-component'
 
+  const onClick = () => {
+    if (isExcluded) {
+      return
+    }
+
+    dayClickFun(currentValue)
+  }
+
   return (
     <div className={classNameOuter}>
-      {!isWeek &&
-        <div className={classNameInner} onClick={onClick} />
-      }
+      <div className={classNameInner} onClick={onClick} />
       <span className='font-bold text-xl'>
         {getDate(currentValue)}
       </span>

@@ -1,12 +1,13 @@
 
 import React from 'react'
 import { tAppointment, tConfiguration, tDay, tTimeFormat } from '../../types/data-types'
+import { slotIsBooked } from '../../utils/misc'
 
 type Props = {
   isEditor?: boolean
   currentDate: Date
   currentValue: tTimeFormat
-  selectFun: (current: tTimeFormat) => void
+  selectFun: (current: tTimeFormat, selectedDate: Date) => void
   configuration: tConfiguration
   appointments: tAppointment[]
 }
@@ -20,10 +21,6 @@ const HourSlot = ({
   appointments
 }: Props) => {
   console.log('isEditor', isEditor)
-
-  const onClick = () => {
-    selectFun(currentValue)
-  }
 
 
   const currentDay = currentDate.getDay() as tDay
@@ -43,15 +40,7 @@ const HourSlot = ({
     return startIncluded && endIncluded
   })
 
-  const hasAppointment = appointments.some((current) => {
-    const appointementStart = current.dateStart
-    const appointementEnd = current.dateEnd
-
-    const parsedDate = new Date(currentDate)
-    parsedDate.setHours(currentValue.hours, currentValue.minutes)
-
-    return parsedDate >= appointementStart && parsedDate < appointementEnd
-  })
+  const hasAppointment = slotIsBooked(appointments, currentDate, currentValue)
 
   const isExcluded = dayExcluded || timeExcluded
 
@@ -59,12 +48,21 @@ const HourSlot = ({
   const bookedClass = hasAppointment ? ' booked' : ''
   const className = `hour-slot${excludedClass}${bookedClass}`
 
+  const onClick = () => {
+    if (isExcluded) {
+      return
+    }
+
+    selectFun(currentValue, currentDate)
+  }
 
   // this will eventually contain the appointment, or an X, or some placeholder
   return (
     <div className='p-4 w-20 h-20 border border-gray-200 flex items-center justify-center shrink-0 relative'>
       <div className={className} onClick={onClick} />
-      <span className='font-semibold text-sm'>{currentValue.hours} - {currentValue.hours + 1} </span>
+      <span className='font-semibold text-sm'>
+        {currentValue.hours} - {currentValue.hours + 1}
+      </span>
     </div>
   )
 }
