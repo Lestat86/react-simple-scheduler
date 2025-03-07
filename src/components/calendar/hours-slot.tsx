@@ -9,6 +9,7 @@ type Props = {
   selectFun: (current: tTimeFormat, selectedDate: Date) => void
   configuration: tConfiguration
   appointments: tAppointment[]
+  limitPastDates?: boolean
 }
 
 const HourSlot = ({
@@ -16,7 +17,8 @@ const HourSlot = ({
   currentValue,
   selectFun,
   configuration,
-  appointments
+  appointments,
+  limitPastDates
 }: Props) => {
 
 
@@ -39,14 +41,20 @@ const HourSlot = ({
 
   const hasAppointment = slotIsBooked(appointments, currentDate, currentValue)
 
+  const parsedDate = new Date(currentDate)
+  parsedDate.setHours(currentValue.hours, currentValue.minutes)
+
+  const pastExcluded = limitPastDates ? parsedDate < new Date() : false
   const isExcluded = dayExcluded || timeExcluded
 
+  const pastExcludedClass = pastExcluded ? ' past-excluded' : ''
   const excludedClass = isExcluded ? ' excluded' : ''
   const bookedClass = hasAppointment ? ' booked' : ''
-  const className = `hour-slot${excludedClass}${bookedClass}`
+
+  const className = `hour-slot${excludedClass}${bookedClass}${pastExcludedClass}`
 
   const onClick = () => {
-    if (isExcluded) {
+    if (isExcluded || pastExcluded) {
       return
     }
 

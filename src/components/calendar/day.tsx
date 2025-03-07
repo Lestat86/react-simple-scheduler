@@ -1,4 +1,4 @@
-import { getDate } from 'date-fns'
+import { getDate, startOfDay } from 'date-fns'
 import React from 'react'
 import { tAppointment, tConfiguration, tDay } from '../../types/data-types'
 import { dayHasAppointments } from '../../utils/misc'
@@ -9,27 +9,34 @@ type Props = {
   dayClickFun: (current: Date) => void
   configuration: tConfiguration
   appointments: tAppointment[]
+  limitPastDates?: boolean
 }
 
 const DayComponent = ({ isWeek,
   currentValue,
   dayClickFun,
   configuration,
-  appointments
+  appointments,
+  limitPastDates
 }: Props) => {
+  const todayStart = startOfDay(new Date())
+  const currentValueDayStart = startOfDay(currentValue)
 
   const isExcluded = configuration.dayExclusions?.includes(currentValue.getDay() as tDay)
 
+  const pastExcluded = limitPastDates ? currentValueDayStart < todayStart : false
+
   const hasAppointment = dayHasAppointments(appointments, currentValue)
 
+  const pastExcludedClass = pastExcluded ? ' past-excluded' : ''
   const excludedClass = isExcluded ? ' excluded' : ''
   const bookedClass = hasAppointment ? ' booked' : ''
 
-  const classNameInner = `calendar-day${excludedClass}${bookedClass}`
+  const classNameInner = `calendar-day${excludedClass}${bookedClass}${pastExcludedClass}`
   const classNameOuter = isWeek ? 'day-component week' : 'day-component'
 
   const onClick = () => {
-    if (isExcluded) {
+    if (isExcluded || pastExcluded) {
       return
     }
 

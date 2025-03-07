@@ -15,6 +15,7 @@ type Props = {
   hoursSlot: tHours[]
   appointments: tAppointment[]
   appointmentReasons?: string[]
+  limitPastDates?: boolean
 }
 
 const AddAppointment = ({
@@ -23,7 +24,8 @@ const AddAppointment = ({
   selectedDate,
   hoursSlot,
   appointments,
-  appointmentReasons
+  appointmentReasons,
+  limitPastDates
 }: Props) => {
   const canSelectTime = startHour === undefined
 
@@ -93,9 +95,6 @@ const AddAppointment = ({
       return
     }
 
-    // oltre al titolo "libero" prevedere un array di opzioni (stringhe)
-    // se lo passi vuoto, ti diamo accesso al titolo libero
-    // la descrizione resta sempre libera invece
     const endHour = selectedHour + 1
     const startDate = new Date(selectedDate)
     const endDate = new Date(selectedDate)
@@ -120,6 +119,18 @@ const AddAppointment = ({
     const currentTimeFormat: tTimeFormat = {
       hours: current,
       minutes: 0
+    }
+
+    if (limitPastDates) {
+      const parsedDate = new Date()
+
+      parsedDate.setHours(current, 0)
+
+      const isBefore = parsedDate < new Date()
+
+      if (isBefore) {
+        return false
+      }
     }
 
     return !slotIsBooked(appointments, selectedDate, currentTimeFormat)

@@ -31,14 +31,15 @@ type Props = {
   addAppointmentFun: (appointment: tAppointment) => void
   config: tConfiguration
   appointmentReasons?: string[]
-  // TODO: limit past dates in appointment selection, as a boolean option
+  limitPastDates?: boolean
 }
 
 const CalendarContainer = ({
   appointments,
   addAppointmentFun,
   config,
-  appointmentReasons
+  appointmentReasons,
+  limitPastDates
 }: Props) => {
   const now = new Date()
   const [currentDate, setCurrentDate] = useState(now)
@@ -73,7 +74,6 @@ const CalendarContainer = ({
   }, [calendarMode, currentDate])
 
   if (days.length === 0) {
-    // TODO: handle this case better
     return null
   }
 
@@ -221,6 +221,7 @@ const CalendarContainer = ({
           hoursSlot={hoursSlots}
           appointments={appointments}
           appointmentReasons={appointmentReasons}
+          limitPastDates={limitPastDates}
         />
       </ModalWrapper>
       <ModeSelector options={modeOptions} />
@@ -241,6 +242,7 @@ const CalendarContainer = ({
               dayClickFun={selectDay}
               configuration={config}
               appointments={appointments}
+              limitPastDates={limitPastDates}
             />
           ))
         }
@@ -265,6 +267,7 @@ const CalendarContainer = ({
                         selectFun={selectSlot}
                         configuration={config}
                         appointments={appointments}
+                        limitPastDates={limitPastDates}
                       />
                     )
                   })

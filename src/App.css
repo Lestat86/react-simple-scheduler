@@ -27,6 +27,10 @@
     @apply bg-red-200/75 cursor-not-allowed;
   }
 
+  &.past-excluded {
+    @apply cursor-not-allowed;
+  }
+
   &.booked {
     @apply bg-blue-200/15;
   }
@@ -37,6 +41,10 @@
 
   &.excluded {
     @apply bg-red-200/75 cursor-not-allowed;
+  }
+
+  &.past-excluded {
+    @apply cursor-not-allowed;
   }
 
   &.booked {
