@@ -56,7 +56,33 @@ const AddAppointment = ({
     }
   }
 
-  const defaultHour = startHour ?? hoursSlot[0]
+
+  const availableSlots = canSelectTime ? hoursSlot.filter((current) => {
+    const currentTimeFormat: tTimeFormat = {
+      hours: current,
+      minutes: 0
+    }
+
+    const now = new Date()
+
+    const isPastDay = selectedDate < now
+
+    if (limitPastDates && isPastDay) {
+      const parsedDate = new Date(selectedDate)
+
+      parsedDate.setHours(current, 0)
+
+      const isBefore = parsedDate < now
+
+      if (isBefore) {
+        return false
+      }
+    }
+
+    return !slotIsBooked(appointments, selectedDate, currentTimeFormat)
+  }) : hoursSlot
+
+  const defaultHour = startHour ?? availableSlots[0]
   const [selectedHour, setSelectedHour] = useState<tHours>(defaultHour)
   const [title, setTitle] = useState(defaultTitle)
   const [description, setDescription] = useState(defaultDescription)
@@ -114,27 +140,6 @@ const AddAppointment = ({
     addAppointmentFun(newAppointment)
   }
 
-
-  const availableSlots = canSelectTime ? hoursSlot.filter((current) => {
-    const currentTimeFormat: tTimeFormat = {
-      hours: current,
-      minutes: 0
-    }
-
-    if (limitPastDates) {
-      const parsedDate = new Date()
-
-      parsedDate.setHours(current, 0)
-
-      const isBefore = parsedDate < new Date()
-
-      if (isBefore) {
-        return false
-      }
-    }
-
-    return !slotIsBooked(appointments, selectedDate, currentTimeFormat)
-  }) : hoursSlot
 
   return (
     <div className='flex flex-col items-start justify-center gap-4 mt-4'>
