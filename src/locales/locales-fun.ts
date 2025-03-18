@@ -24,6 +24,13 @@ const defaultKeys: tLocaleKeysMap = {
     "fr": "Téléphone obligatoire",
     "es": "Teléfono obligatorio"
   },
+  "errors.fullyBooked": {
+    "it": "Attenzione: nessuno slot disponibile per il giorno selezionato.",
+    "en": "Error: no slots available for the selected day.",
+    "de": "Achtung: keine verfügbaren Slots für den ausgewählten Tag.",
+    "fr": "Attention: aucun créneau disponible pour le jour sélectionné.",
+    "es": "Atención: no hay espacios disponibles para el día seleccionado."
+  },
   "appointment.title": {
     "it": "Titolo",
     "en": "Title",

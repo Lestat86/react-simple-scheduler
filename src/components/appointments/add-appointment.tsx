@@ -99,6 +99,19 @@ const AddAppointment = ({
 
   const [errors, setErrors] = useState<tAppoinmentErrors>({})
 
+  const fullyBookedLabel = translate('errors.fullyBooked', locale, providedKeys)
+
+  if (availableSlots.length == 0) {
+    // full day has been booked
+    return (
+      <div className='flex flex-col items-start justify-center gap-4 mt-4 p-2'>
+        <span className='text-xl'>
+          {fullyBookedLabel}
+        </span>
+      </div>
+    )
+  }
+
   const onClick = () => {
     let hasErrors = false
     const _errors: tAppoinmentErrors = {}
