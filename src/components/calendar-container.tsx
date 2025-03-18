@@ -36,17 +36,18 @@ type Props = {
   limitPastDates?: boolean
   locale?: string
   providedKeys?: tLocaleKeysMap
+  hideAppointments?: boolean
 }
 
 const CalendarContainer = ({
   appointments,
   addAppointmentFun,
-
   config,
   appointmentReasons,
   limitPastDates,
   locale,
-  providedKeys
+  providedKeys,
+  hideAppointments
 }: Props) => {
   const now = new Date()
   const [currentDate, setCurrentDate] = useState(now)
@@ -289,6 +290,7 @@ const CalendarContainer = ({
                         configuration={config}
                         appointments={appointments}
                         limitPastDates={limitPastDates}
+                        hideAppointments={hideAppointments}
                       />
                     )
                   })

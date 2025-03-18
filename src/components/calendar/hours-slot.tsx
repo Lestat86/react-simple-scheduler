@@ -8,6 +8,7 @@ type Props = {
   configuration: tConfiguration
   appointments: tAppointment[]
   limitPastDates?: boolean
+  hideAppointments?: boolean
 }
 
 const HourSlot = ({
@@ -16,7 +17,8 @@ const HourSlot = ({
   selectFun,
   configuration,
   appointments,
-  limitPastDates
+  limitPastDates,
+  hideAppointments
 }: Props) => {
 
 
@@ -53,6 +55,10 @@ const HourSlot = ({
 
   const onClick = () => {
     if (isExcluded || pastExcluded) {
+      return
+    }
+
+    if (hasAppointment && hideAppointments) {
       return
     }
 
