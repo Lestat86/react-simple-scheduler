@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { tAppointment, tHours, tTimeFormat } from '../../types/data-types'
 import Button from '../button'
 import { BUTTON_VARIANTS } from '../../constants/ui'
@@ -7,6 +7,8 @@ import { findMatchingAppointment, slotIsBooked } from '../../utils/misc'
 import InputWithError from '../input-with-error'
 import { tAppoinmentErrors } from '../../types/misc'
 import AppointmentDescription from './appointment-description'
+import { translate } from '../../locales/locales-fun'
+import { tLocaleKeysMap } from '../../types/locale'
 
 type Props = {
   startHour?: tHours
@@ -16,6 +18,8 @@ type Props = {
   appointments: tAppointment[]
   appointmentReasons?: string[]
   limitPastDates?: boolean
+  locale: string
+  providedKeys?: tLocaleKeysMap
 }
 
 const AddAppointment = ({
@@ -25,7 +29,9 @@ const AddAppointment = ({
   hoursSlot,
   appointments,
   appointmentReasons,
-  limitPastDates
+  limitPastDates,
+  locale,
+  providedKeys
 }: Props) => {
   const canSelectTime = startHour === undefined
 
@@ -98,19 +104,19 @@ const AddAppointment = ({
     const _errors: tAppoinmentErrors = {}
 
     if (title.length === 0) {
-      _errors.title = 'Titolo obbligatorio'
+      _errors.title = translate('errors.missingTitle', locale, providedKeys)
 
       hasErrors = true
     }
 
     if (name.length === 0) {
-      _errors.name = 'Nome obbligatorio'
+      _errors.name = translate('errors.missingName', locale, providedKeys)
 
       hasErrors = true
     }
 
     if (phone.length === 0) {
-      _errors.phone = 'Phone obbligatorio'
+      _errors.phone = translate('errors.missingPhone', locale, providedKeys)
 
       hasErrors = true
     }
@@ -140,6 +146,12 @@ const AddAppointment = ({
     addAppointmentFun(newAppointment)
   }
 
+  const titleLabel = translate('appointment.title', locale, providedKeys)
+  const nameLabel = translate('appointment.name', locale, providedKeys)
+  const phoneLabel = translate('appointment.phone', locale, providedKeys)
+  const emailLabel = translate('appointment.email', locale, providedKeys)
+  const dateAndTimeLabel = translate('appointment.dateAndTime', locale, providedKeys)
+  const bookLabel = translate('appointment.book', locale, providedKeys)
 
   return (
     <div className='flex flex-col items-start justify-center gap-4 mt-4'>
@@ -147,7 +159,7 @@ const AddAppointment = ({
         <div className="flex flex-col gap-4">
           <InputWithError<string> value={title}
             onChangeCB={setTitle}
-            label="Title"
+            label={titleLabel}
             disabled={hasAppointment}
             errorMessage={errors.title}
           />
@@ -160,36 +172,38 @@ const AddAppointment = ({
         <div className="flex flex-col gap-4">
           <InputWithError<string> value={name}
             onChangeCB={setName}
-            label="Name"
+            label={nameLabel}
             disabled={hasAppointment}
             errorMessage={errors.name}
           />
           <InputWithError<string> value={phone}
             onChangeCB={setPhone}
-            label="Phone"
+            label={phoneLabel}
             disabled={hasAppointment}
             errorMessage={errors.phone}
           />
           <InputWithError<string> value={email}
             onChangeCB={setEmail}
-            label="E-mail"
+            label={emailLabel}
             disabled={hasAppointment}
           />
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <span className='font-semibold'>Data e ora</span>
+        <span className='font-semibold'>{dateAndTimeLabel}</span>
         <TimePicker selectedHour={selectedHour}
           selectedDate={selectedDate}
           setStartHour={setSelectedHour}
           canSelectTime={canSelectTime}
           hoursSlot={availableSlots}
+          locale={locale}
+          providedKeys={providedKeys}
         />
       </div>
       {!hasAppointment &&
         <div className="flex justify-end w-full">
           <Button variant={BUTTON_VARIANTS.PRIMARY}
-            caption='Prenota'
+            caption={bookLabel}
             onClick={onClick} />
         </div>}
     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CALENDAR_MODES, tCalendarModes } from '../types/misc'
 import {
   getEnclosingMonthDays,
@@ -25,6 +25,8 @@ import HourSlot from './calendar/hours-slot'
 import { tAppointment, tConfiguration, tHours, tTimeFormat } from '../types/data-types'
 import AddAppointment from './appointments/add-appointment'
 import ModalWrapper from './modal-wrapper'
+import { getUserLocale, translate } from '../locales/locales-fun'
+import { tLocaleKeysMap } from '../types/locale'
 
 type Props = {
   appointments: tAppointment[]
@@ -32,14 +34,19 @@ type Props = {
   config: tConfiguration
   appointmentReasons?: string[]
   limitPastDates?: boolean
+  locale?: string
+  providedKeys?: tLocaleKeysMap
 }
 
 const CalendarContainer = ({
   appointments,
   addAppointmentFun,
+
   config,
   appointmentReasons,
-  limitPastDates
+  limitPastDates,
+  locale,
+  providedKeys
 }: Props) => {
   const now = new Date()
   const [currentDate, setCurrentDate] = useState(now)
@@ -49,6 +56,11 @@ const CalendarContainer = ({
   const [days, setDays] = useState<Date[]>([])
   const [startPlaceHoldersDays, setStartPlaceHoldersDays] = useState(0)
   const [endPlaceHoldersDays, setEndPlaceHoldersDays] = useState(0)
+
+  const localeWasProvided = locale !== undefined
+  const userLocale = getUserLocale()
+
+  const localeToUse = localeWasProvided ? locale : userLocale
 
   useEffect(() => {
     let _days: Date[] = []
@@ -142,13 +154,16 @@ const CalendarContainer = ({
 
   const monthName = format(currentDate, 'LLLL - yyyy', { locale: it })
 
+  const monthLabel = translate('general.month', localeToUse, providedKeys)
+  const weekLabel = translate('general.week', localeToUse, providedKeys)
+
   const modeOptions = [
     {
-      label: "Mese",
+      label: monthLabel,
       changeFun: setMonthMode
     },
     {
-      label: "Settimana",
+      label: weekLabel,
       changeFun: setWeekMode
     },
   ]
@@ -209,11 +224,13 @@ const CalendarContainer = ({
 
   const showAppointmentModal = isWeekMode ? slotSelected : daySelected
 
+  const titleLabel = translate('general.appointment', localeToUse, providedKeys)
+
   return (
     <div className='flex flex-col p-4 gap-2 h-[90vh]'>
       <ModalWrapper show={showAppointmentModal}
         closeFun={resetSelectedSlot}
-        title="Appuntamento">
+        title={titleLabel}>
         <AddAppointment
           startHour={currentSlot}
           addAppointmentFun={internalAddAppointmentFun}
@@ -222,6 +239,8 @@ const CalendarContainer = ({
           appointments={appointments}
           appointmentReasons={appointmentReasons}
           limitPastDates={limitPastDates}
+          locale={localeToUse}
+          providedKeys={providedKeys}
         />
       </ModalWrapper>
       <ModeSelector options={modeOptions} />
@@ -229,6 +248,8 @@ const CalendarContainer = ({
         nextFun={nextFun}
         todayFun={goToTodayFun}
         currentValue={monthName}
+        locale={localeToUse}
+        providedKeys={providedKeys}
       />
       <CalendarHeader />
       <div className={className}>

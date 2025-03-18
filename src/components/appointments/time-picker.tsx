@@ -1,6 +1,8 @@
 import React from 'react'
 import { tHours } from '../../types/data-types'
 import { format } from 'date-fns'
+import { translate } from '../../locales/locales-fun'
+import { tLocaleKeysMap } from '../../types/locale'
 
 type Props = {
   selectedHour: tHours
@@ -8,18 +10,25 @@ type Props = {
   canSelectTime?: boolean
   setStartHour: (hour: tHours) => void
   hoursSlot: tHours[]
+  locale: string
+  providedKeys?: tLocaleKeysMap
 }
 
 const TimePicker = ({ selectedHour,
   selectedDate,
   canSelectTime,
   setStartHour,
-  hoursSlot }: Props) => {
+  hoursSlot,
+  locale,
+  providedKeys }: Props) => {
   const formattedDate = format(selectedDate, 'dd/MM/yyyy')
+
+  const timeFromLabel = translate('appointment.timeFrom', locale, providedKeys)
+  const timeToLabel = translate('appointment.timeFrom', locale, providedKeys)
 
   if (!canSelectTime) {
     return (
-      <span>{formattedDate} dalle ore {selectedHour} alle {selectedHour + 1}</span>
+      <span>{formattedDate} {timeFromLabel}  {selectedHour} {timeToLabel} {selectedHour + 1}</span>
     )
   }
 
@@ -36,7 +45,7 @@ const TimePicker = ({ selectedHour,
           <option value={hour} key={hour}>{hour}</option>
         ))}
       </select>
-      <span>alle {selectedHour + 1}</span>
+      <span>{timeToLabel} {selectedHour + 1}</span>
     </div>
   )
 }
