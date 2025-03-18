@@ -1,6 +1,5 @@
 import {
   eachDayOfInterval,
-  eachHourOfInterval,
   endOfMonth,
   endOfWeek,
   startOfMonth,
@@ -33,7 +32,6 @@ export const getMonthEndPlaceHolderDays = (current: Date) => {
   const dayToUse = monthLastDay === 0 ? 7 : monthLastDay
   const placeHoldersDays = 7 - dayToUse
 
-  console.log('monthends', 7, dayToUse)
   return placeHoldersDays
 }
 

@@ -1,4 +1,3 @@
-import React from 'react'
 import { notNullishCheck } from '../../utils/misc'
 
 type Props = {

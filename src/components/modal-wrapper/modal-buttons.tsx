@@ -1,4 +1,3 @@
-import React from 'react'
 import Button from '../button'
 import { BUTTON_VARIANTS } from '../../constants/ui'
 import { notNullishCheck } from '../../utils/misc'

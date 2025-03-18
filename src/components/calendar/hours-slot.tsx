@@ -1,5 +1,3 @@
-
-import React from 'react'
 import { tAppointment, tConfiguration, tDay, tTimeFormat } from '../../types/data-types'
 import { slotIsBooked } from '../../utils/misc'
 

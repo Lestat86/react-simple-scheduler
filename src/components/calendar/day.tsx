@@ -1,5 +1,4 @@
 import { getDate, startOfDay } from 'date-fns'
-import React from 'react'
 import { tAppointment, tConfiguration, tDay } from '../../types/data-types'
 import { dayHasAppointments } from '../../utils/misc'
 
