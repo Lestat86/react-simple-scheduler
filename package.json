@@ -19,8 +19,8 @@
       "types": "./dist/exported-types.d.ts"
     },
     "./styles.css": {
-      "default": "./dist/styles.css",
-      "import": "./dist/styles.css"
+      "import": "./dist/styles.css",
+      "default": "./dist/styles.css"
     }
   },
   "types": "./dist/index.d.ts",
