@@ -1,7 +1,7 @@
 import { tAppointment, tConfiguration, tDay, tTimeExclusion } from "../types/data-types"
 
 // no weekends!
-const dayExclusions: tDay[] = [0, 6]
+const dayExclusions: tDay[] = [0,6]
 
 // 9 - 18
 const startsAt9: tTimeExclusion = {

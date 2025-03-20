@@ -1,25 +1,63 @@
 {
-  "name": "scheduler",
-  "private": true,
-  "version": "0.0.0",
+  "name": "react-tiny-simple-scheduler",
+  "version": "1.1.8",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lestat86/react-simple-scheduler.git"
+  },
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./types": {
+      "import": "./dist/exported-types.mjs",
+      "require": "./dist/exported-types.cjs",
+      "types": "./dist/exported-types.d.ts"
+    },
+    "./styles.css": {
+      "default": "./dist/styles.css",
+      "import": "./dist/styles.css"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build:esm:index": "bun build src/index.tsx --outdir=dist --external react --external react-dom --format=esm --minify --target=browser && mv dist/index.js dist/index.mjs",
+    "build:esm:types": "bun build src/exported-types.ts --outdir=dist --external react --external react-dom --format=esm --minify --target=browser && mv dist/exported-types.js dist/exported-types.mjs",
+    "build:cjs:index": "bun build src/index.tsx --outdir=dist --external react --external react-dom --format=cjs --minify --target=browser && mv dist/index.js dist/index.cjs",
+    "build:cjs:types": "bun build src/exported-types.ts --outdir=dist --external react --external react-dom --format=cjs --minify --target=browser && mv dist/exported-types.js dist/exported-types.cjs",
+    "build:esm": "bun run build:esm:index && bun run build:esm:types",
+    "build:cjs": "bun run build:cjs:index && bun run build:cjs:types",
+    "build:types": "tsc --project tsconfig.json",
+    "build:css": "bunx @tailwindcss/cli -i ./src/styles.css -o ./dist/styles.css",
+    "build": "bun run build:esm && bun run build:cjs && bun run build:types && bun run build:css",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepublishOnly": "bun run build",
+    "pippo": "postcss input.css -o output.css"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.0.1",
-    "date-fns": "^4.1.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "tailwindcss": "^4.0.1"
+    "@tailwindcss/postcss": "^4.0.14",
+    "date-fns": "^4.1.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@stylistic/eslint-plugin": "^3.0.1",
     "@stylistic/eslint-plugin-js": "^3.0.1",
+    "@tailwindcss/cli": "^4.0.14",
+    "@tailwindcss/vite": "^4.0.13",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
@@ -27,8 +65,12 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
+    "tailwind": "^4.0.0",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^6.0.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

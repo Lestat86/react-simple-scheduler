@@ -3,7 +3,7 @@ type tNumericRange<N extends number, Result extends number[] = []> =
   Result['length'] extends N ? Result[number] : tNumericRange<N, [...Result, Result['length']]>
 
 export type tHours = tNumericRange<25>
-export type tSeconds = tNumericRange<25>
+export type tSeconds = tNumericRange<60>
 
 export type tDay = 0 | 1 | 2 | 3 | 4 | 5 | 6
 export type tTimeFormat = {
