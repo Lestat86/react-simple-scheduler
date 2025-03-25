@@ -9,6 +9,7 @@ type Props = {
   configuration: tConfiguration
   appointments: tAppointment[]
   limitPastDates?: boolean
+  vertical?: boolean
 }
 
 const DayComponent = ({ isWeek,
@@ -16,7 +17,8 @@ const DayComponent = ({ isWeek,
   dayClickFun,
   configuration,
   appointments,
-  limitPastDates
+  limitPastDates,
+  vertical
 }: Props) => {
   const todayStart = startOfDay(new Date())
   const currentValueDayStart = startOfDay(currentValue)
@@ -31,8 +33,10 @@ const DayComponent = ({ isWeek,
   const excludedClass = isExcluded ? ' excluded' : ''
   const bookedClass = hasAppointment ? ' booked' : ''
 
+  const verticalClass = vertical ? ' vertical' : ''
+
   const classNameInner = `calendar-day${excludedClass}${bookedClass}${pastExcludedClass}`
-  const classNameOuter = isWeek ? 'day-component week' : 'day-component'
+  const classNameOuter = isWeek ? `day-component week${verticalClass}` : 'day-component'
 
   const onClick = () => {
     if (isExcluded || pastExcluded) {

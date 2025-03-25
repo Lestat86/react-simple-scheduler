@@ -18,6 +18,10 @@
 
 .week-view {
   @apply flex gap-2;
+
+  &.vertical {
+    @apply flex-col justify-around;
+  }
 }
 
 .calendar-day {
@@ -57,5 +61,45 @@
 
   &.week {
     @apply px-4 w-20 h-10;
+
+    &.vertical {
+      @apply w-10 h-20;
+    }
+  }
+}
+
+.slots-container {
+  @apply flex gap-3 overflow-y-auto;
+
+  .container {
+    @apply flex gap-2;
+
+    &.vertical {
+      @apply flex-col;
+    }
+
+    .slots {
+      @apply flex flex-col gap-1;
+
+      &.vertical {
+        flex-direction: row;
+      }
+    }
+  }
+}
+
+.calendar-header {
+  @apply flex justify-around;
+
+  &.vertical {
+    @apply flex-col;
+  }
+}
+
+.calendar-container-body {
+  @apply flex flex-col gap-3;
+
+  &.vertical.week {
+    flex-direction: row;
   }
 }

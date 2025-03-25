@@ -21,12 +21,12 @@ import { it } from 'date-fns/locale'
 import ModeSelector from './calendar/mode-selector'
 import PlaceHolderDayComponent from './calendar/placeholder-days'
 import CalendarHeader from './calendar/calendar-header'
-import HourSlot from './calendar/hours-slot'
 import { tAppointment, tConfiguration, tHours, tTimeFormat } from '../types/data-types'
 import AddAppointment from './appointments/add-appointment'
 import ModalWrapper from './modal-wrapper'
 import { getUserLocale, translate } from '../locales/locales-fun'
 import { tLocaleKeysMap } from '../types/locale'
+import WeekMode from './calendar/week-mode'
 
 type Props = {
   appointments: tAppointment[]
@@ -37,6 +37,7 @@ type Props = {
   locale?: string
   providedKeys?: tLocaleKeysMap
   hideAppointments?: boolean
+  vertical?: boolean
 }
 
 const CalendarContainer = ({
@@ -47,7 +48,8 @@ const CalendarContainer = ({
   limitPastDates,
   locale,
   providedKeys,
-  hideAppointments
+  hideAppointments,
+  vertical
 }: Props) => {
   const now = new Date()
   const [currentDate, setCurrentDate] = useState(now)
@@ -169,10 +171,12 @@ const CalendarContainer = ({
     },
   ]
 
+
+  const verticalClass = vertical ? ' vertical' : ''
   let className = ''
   switch (calendarMode) {
     case CALENDAR_MODES.WEEK:
-      className = 'week-view'
+      className = `week-view${verticalClass}`
       break
 
     case CALENDAR_MODES.MONTH:
@@ -227,6 +231,9 @@ const CalendarContainer = ({
 
   const titleLabel = translate('general.appointment', localeToUse, providedKeys)
 
+  const weekModeClass = isWeekMode ? ' week' : ''
+  const calendarContainerBodyClass = `calendar-container-body${weekModeClass}${verticalClass}`
+
   return (
     <div className='flex flex-col p-4 gap-2 h-[90vh]'>
       <ModalWrapper show={showAppointmentModal}
@@ -252,55 +259,38 @@ const CalendarContainer = ({
         locale={localeToUse}
         providedKeys={providedKeys}
       />
-      <CalendarHeader />
-      <div className={className}>
-        <PlaceHolderDayComponent placeHolderDays={startPlaceHoldersDays} />
-        {
-          days.map((current, idx) => (
-            <DayComponent
-              key={`day_${idx}`}
-              isWeek={isWeekMode}
-              currentValue={current}
-              dayClickFun={selectDay}
-              configuration={config}
-              appointments={appointments}
-              limitPastDates={limitPastDates}
-            />
-          ))
-        }
-        <PlaceHolderDayComponent placeHolderDays={endPlaceHoldersDays} />
-      </div>
-      {isWeekMode && <div className='flex gap-3 overflow-y-auto'>
-        <div className="flex gap-2">
+      <div className={calendarContainerBodyClass}>
+        <CalendarHeader vertical={isWeekMode && vertical} />
+        <div className={className}>
+          <PlaceHolderDayComponent placeHolderDays={startPlaceHoldersDays} />
           {
-            days.map((currentDate, idx) => (
-              <div className="flex flex-col gap-1" key={`day_${idx}`}>
-                {
-                  hoursSlots.map((currentHour) => {
-                    const currentValue: tTimeFormat = {
-                      hours: currentHour as tHours,
-                      minutes: 0
-                    }
-
-                    return (
-                      <HourSlot key={`${currentDate}_${currentHour}`}
-                        currentDate={currentDate}
-                        currentValue={currentValue}
-                        selectFun={selectSlot}
-                        configuration={config}
-                        appointments={appointments}
-                        limitPastDates={limitPastDates}
-                        hideAppointments={hideAppointments}
-                      />
-                    )
-                  })
-                }
-              </div>
+            days.map((current, idx) => (
+              <DayComponent
+                key={`day_${idx}`}
+                isWeek={isWeekMode}
+                currentValue={current}
+                dayClickFun={selectDay}
+                configuration={config}
+                appointments={appointments}
+                limitPastDates={limitPastDates}
+                vertical={vertical}
+              />
             ))
           }
+          <PlaceHolderDayComponent placeHolderDays={endPlaceHoldersDays} />
         </div>
-      </div>}
-    </div >
+        <WeekMode appointments={appointments}
+          show={isWeekMode}
+          days={days}
+          hoursSlots={hoursSlots}
+          config={config}
+          limitPastDates={limitPastDates}
+          hideAppointments={hideAppointments}
+          vertical={vertical}
+          selectSlot={selectSlot}
+        />
+      </div >
+    </div>
   )
 }
 

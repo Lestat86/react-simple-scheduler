@@ -17,7 +17,7 @@ const CalendarControls = ({
   todayFun,
   currentValue,
   locale,
-  providedKeys
+  providedKeys,
 }: Props) => {
   const prevLabel = translate('controls.prev', locale, providedKeys)
   const nextLabel = translate('controls.next', locale, providedKeys)
