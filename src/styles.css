@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 .button-primary {
-  @apply bg-blue-200 uppercase px-2 py-1 text-white font-semibold;
+  @apply bg-blue-200 uppercase px-2 py-1 text-white font-semibold cursor-pointer;
 }
 
 .button-outlined {
-  @apply border-blue-200 uppercase px-2 py-1 text-blue-200 font-semibold;
+  @apply border-blue-200 uppercase px-2 py-1 text-blue-200 font-semibold cursor-pointer;
 }
 
 .button-danger {
-  @apply bg-orange-400 text-white uppercase px-2 py-1 font-semibold;
+  @apply bg-orange-400 text-white uppercase px-2 py-1 font-semibold cursor-pointer;
 }
 
 .month-view {
