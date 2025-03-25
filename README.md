@@ -33,6 +33,8 @@ Here is the list of the props:
   More on this in the "locale" section;
 - `hideAppointments`: Optional prop, boolean. If provided it will hide appointments details, i.e. for a scheduler that has
   manager / normal user role distinctions.
+- `vertical`: Optional prop, boolean. If provided, the scheduler will be in "vertical mode" - i.e. days names and numbers on the left,
+  hour slots vertically placed right after them. Works only in 'week mode'.
 
 ## Scheduler config
 
