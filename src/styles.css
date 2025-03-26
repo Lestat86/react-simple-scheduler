@@ -69,13 +69,13 @@
 }
 
 .slots-container {
-  @apply flex gap-3 overflow-y-hidden h-[70vh];
+  @apply flex gap-3 overflow-y-hidden;
 
   .container {
     @apply flex gap-2 overflow-y-auto;
 
     &.vertical {
-      @apply flex-col justify-between;
+      @apply flex-col justify-between h-[70vh];
     }
 
     .slots {
