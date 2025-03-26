@@ -251,14 +251,16 @@ const CalendarContainer = ({
           providedKeys={providedKeys}
         />
       </ModalWrapper>
-      <ModeSelector options={modeOptions} />
-      <CalendarControls prevFun={prevFun}
-        nextFun={nextFun}
-        todayFun={goToTodayFun}
-        currentValue={monthName}
-        locale={localeToUse}
-        providedKeys={providedKeys}
-      />
+      <div className="calendar-controls">
+        <CalendarControls prevFun={prevFun}
+          nextFun={nextFun}
+          todayFun={goToTodayFun}
+          currentValue={monthName}
+          locale={localeToUse}
+          providedKeys={providedKeys}
+        />
+        <ModeSelector options={modeOptions} />
+      </div>
       <div className={calendarContainerBodyClass}>
         <CalendarHeader vertical={isWeekMode && vertical} />
         <div className={className}>

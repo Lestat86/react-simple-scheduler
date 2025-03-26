@@ -25,7 +25,7 @@ const CalendarControls = ({
 
   return (
     <div className='flex gap-3 border-gray-200 items-center justify-between'>
-      <div className="flex gap-3 items-center">
+      <div className="flex gap-3 items-center text-sm">
         <Button variant='PRIMARY' caption={prevLabel} onClick={prevFun} />
         <Button variant='PRIMARY' caption={todayLabel} onClick={todayFun} />
         <Button variant='PRIMARY' caption={nextLabel} onClick={nextFun} />

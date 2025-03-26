@@ -69,13 +69,13 @@
 }
 
 .slots-container {
-  @apply flex gap-3 overflow-y-auto;
+  @apply flex gap-3 overflow-y-hidden h-[70vh];
 
   .container {
-    @apply flex gap-2;
+    @apply flex gap-2 overflow-y-auto;
 
     &.vertical {
-      @apply flex-col;
+      @apply flex-col justify-between;
     }
 
     .slots {
@@ -102,4 +102,8 @@
   &.vertical.week {
     flex-direction: row;
   }
+}
+
+.calendar-controls {
+  @apply flex gap-3 justify-center;
 }
