@@ -215,10 +215,13 @@ const CalendarContainer = ({
     exclusionsSet.add(exclusionEnd.hours)
   })
 
-  const sortedExclusions = [...exclusionsSet].sort().filter((current) => current !== 0)
+  const sortedExclusions = [...exclusionsSet]
+    .sort((a, b) => a - b)
+    .filter((current) => current !== 0)
 
-  const minExclusion = sortedExclusions[sortedExclusions.length - 1]
-  const maxExclusion = sortedExclusions[0]
+  const minExclusion = sortedExclusions[0]
+  const maxExclusion = sortedExclusions[sortedExclusions.length - 1]
+
 
   const hoursSlots: tHours[] = ([...Array(24).keys()] as tHours[])
     .filter((current) => current >= minExclusion && current <= maxExclusion)
