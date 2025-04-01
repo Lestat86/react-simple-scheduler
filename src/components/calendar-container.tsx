@@ -252,6 +252,7 @@ const CalendarContainer = ({
           limitPastDates={limitPastDates}
           locale={localeToUse}
           providedKeys={providedKeys}
+          config={config}
         />
       </ModalWrapper>
       <div className="calendar-controls">

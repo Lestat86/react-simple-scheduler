@@ -1,5 +1,5 @@
 import { tAppointment, tConfiguration, tDay, tTimeFormat } from '../../types/data-types'
-import { slotIsBooked } from '../../utils/misc'
+import { isTimeExcluded, slotIsBooked } from '../../utils/misc'
 
 type Props = {
   currentDate: Date
@@ -25,19 +25,7 @@ const HourSlot = ({
   const currentDay = currentDate.getDay() as tDay
 
   const dayExcluded = configuration.dayExclusions?.includes(currentDay)
-  const timeExcluded = configuration.timeExclusions?.some((current) => {
-    const { exclusionStart, exclusionEnd, days } = current
-
-    if (!days?.includes(currentDay)) {
-      return false
-    }
-
-    const parsedEnd = exclusionEnd.hours > 0 ? exclusionEnd.hours : 24
-    const startIncluded = currentValue.hours > exclusionStart.hours
-    const endIncluded = currentValue.hours < parsedEnd
-
-    return startIncluded && endIncluded
-  })
+  const timeExcluded = isTimeExcluded(currentDay, currentValue, configuration.timeExclusions)
 
   const hasAppointment = slotIsBooked(appointments, currentDate, currentValue)
 

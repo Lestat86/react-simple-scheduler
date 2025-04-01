@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { tAppointment, tHours, tTimeFormat } from '../../types/data-types'
+import { tAppointment, tConfiguration, tDay, tHours, tTimeFormat } from '../../types/data-types'
 import Button from '../button'
 import { BUTTON_VARIANTS } from '../../constants/ui'
 import TimePicker from './time-picker'
-import { findMatchingAppointment, slotIsBooked } from '../../utils/misc'
+import { findMatchingAppointment, isTimeExcluded, slotIsBooked } from '../../utils/misc'
 import InputWithError from '../input-with-error'
 import { tAppoinmentErrors } from '../../types/misc'
 import AppointmentDescription from './appointment-description'
@@ -17,6 +17,7 @@ type Props = {
   hoursSlot: tHours[]
   appointments: tAppointment[]
   appointmentReasons?: string[]
+  config: tConfiguration
   limitPastDates?: boolean
   locale: string
   providedKeys?: tLocaleKeysMap
@@ -29,6 +30,7 @@ const AddAppointment = ({
   hoursSlot,
   appointments,
   appointmentReasons,
+  config,
   limitPastDates,
   locale,
   providedKeys
@@ -83,6 +85,14 @@ const AddAppointment = ({
       if (isBefore) {
         return false
       }
+    }
+
+    const currentDay = selectedDate.getDay() as tDay
+
+    const isExcluded = isTimeExcluded(currentDay, currentTimeFormat, config.timeExclusions)
+
+    if (isExcluded) {
+      return false
     }
 
     return !slotIsBooked(appointments, selectedDate, currentTimeFormat)
