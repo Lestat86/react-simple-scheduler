@@ -1,6 +1,6 @@
 {
   "name": "react-tiny-simple-scheduler",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "type": "module",
   "repository": {
     "type": "git",
@@ -30,10 +30,10 @@
   "sideEffects": false,
   "scripts": {
     "dev": "vite",
-    "build:esm:index": "bun build src/index.tsx --outdir=dist --external react --external react-dom --format=esm --minify --target=browser && mv dist/index.js dist/index.mjs",
-    "build:esm:types": "bun build src/exported-types.ts --outdir=dist --external react --external react-dom --format=esm --minify --target=browser && mv dist/exported-types.js dist/exported-types.mjs",
-    "build:cjs:index": "bun build src/index.tsx --outdir=dist --external react --external react-dom --format=cjs --minify --target=browser && mv dist/index.js dist/index.cjs",
-    "build:cjs:types": "bun build src/exported-types.ts --outdir=dist --external react --external react-dom --format=cjs --minify --target=browser && mv dist/exported-types.js dist/exported-types.cjs",
+    "build:esm:index": "NODE_ENV=production bun build src/index.tsx --outdir=dist --external react --external react-dom --format=esm --minify --target=browser && mv dist/index.js dist/index.mjs",
+    "build:esm:types": "NODE_ENV=production bun build src/exported-types.ts --outdir=dist --external react --external react-dom --format=esm --minify --target=browser && mv dist/exported-types.js dist/exported-types.mjs",
+    "build:cjs:index": "NODE_ENV=production bun build src/index.tsx --outdir=dist --external react --external react-dom --format=cjs --minify --target=browser && mv dist/index.js dist/index.cjs",
+    "build:cjs:types": "NODE_ENV=production bun build src/exported-types.ts --outdir=dist --external react --external react-dom --format=cjs --minify --target=browser && mv dist/exported-types.js dist/exported-types.cjs",
     "build:esm": "bun run build:esm:index && bun run build:esm:types",
     "build:cjs": "bun run build:cjs:index && bun run build:cjs:types",
     "build:types": "tsc --project tsconfig.json",
