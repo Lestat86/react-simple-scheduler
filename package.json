@@ -1,6 +1,6 @@
 {
   "name": "react-tiny-simple-scheduler",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "type": "module",
   "repository": {
     "type": "git",
@@ -41,8 +41,7 @@
     "build": "bun run build:esm && bun run build:cjs && bun run build:types && bun run build:css",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepublishOnly": "bun run build",
-    "pippo": "postcss input.css -o output.css"
+    "prepublishOnly": "bun run build"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.0.14",
