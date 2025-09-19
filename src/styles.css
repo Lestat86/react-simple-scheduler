@@ -106,4 +106,88 @@
 
 .calendar-controls {
   @apply flex gap-3 justify-center;
+  
+  /* Mobile layout: 3 rows */
+  @media (max-width: 640px) {
+    @apply flex-col gap-2;
+  }
+}
+
+/* Mobile specific classes */
+@media (max-width: 640px) {
+  .calendar-controls-mobile {
+    @apply flex flex-col gap-2;
+  }
+  
+  .calendar-controls-date {
+    @apply text-center font-semibold text-lg;
+  }
+  
+  .calendar-controls-modes {
+    @apply flex gap-2 justify-center;
+  }
+  
+  .calendar-controls-navigation {
+    @apply flex gap-2 justify-center;
+  }
+  
+  .week-view-mobile {
+    @apply flex overflow-x-auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .week-view-mobile::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .header-scroll-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .header-scroll-hidden::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .week-day-mobile {
+    @apply min-w-[30%] flex-shrink-0 mx-[1.67%] relative;
+  }
+  
+  .week-day-mobile .calendar-day {
+    @apply relative w-full h-full;
+  }
+  
+  .month-view-mobile {
+    @apply flex flex-wrap gap-3 overflow-y-auto max-h-[70vh] justify-between;
+  }
+  
+  .month-day-mobile {
+    @apply flex items-center justify-between p-4 border border-gray-200 rounded-lg;
+    width: calc(50% - 6px);
+  }
+  
+  .month-day-info {
+    @apply flex flex-col;
+  }
+  
+  .month-day-name {
+    @apply text-sm font-medium text-gray-600;
+  }
+  
+  .month-day-number {
+    @apply text-lg font-bold;
+  }
+  
+  .slots-container-mobile {
+    @apply overflow-y-auto max-h-[60vh];
+  }
+  
+  .appointment-modal-mobile {
+    @apply w-full max-w-full;
+  }
+  
+  .appointment-form-mobile {
+    @apply flex flex-col gap-4;
+  }
 }

@@ -17,7 +17,15 @@ import {
   startOfWeek,
   subDays
 } from 'date-fns'
-import { it } from 'date-fns/locale'
+import { it, enUS, de, fr, es } from 'date-fns/locale'
+
+const localeMap = {
+  'it': it,
+  'en': enUS,
+  'de': de,
+  'fr': fr,
+  'es': es
+}
 import ModeSelector from './calendar/mode-selector'
 import PlaceHolderDayComponent from './calendar/placeholder-days'
 import CalendarHeader from './calendar/calendar-header'
@@ -27,6 +35,7 @@ import ModalWrapper from './modal-wrapper'
 import { getUserLocale, translate } from '../locales/locales-fun'
 import { tLocaleKeysMap } from '../types/locale'
 import WeekMode from './calendar/week-mode'
+import useMobile from '../hooks/use-mobile'
 
 type Props = {
   appointments: tAppointment[]
@@ -51,6 +60,7 @@ const CalendarContainer = ({
   hideAppointments,
   vertical
 }: Props) => {
+  const isMobile = useMobile()
   const now = new Date()
   const [currentDate, setCurrentDate] = useState(now)
   const [currentSlot, setCurrentSlot] = useState<tHours | undefined>()
@@ -155,7 +165,8 @@ const CalendarContainer = ({
   const setMonthMode = () => setCalendarMode(CALENDAR_MODES.MONTH)
   const setWeekMode = () => setCalendarMode(CALENDAR_MODES.WEEK)
 
-  const monthName = format(currentDate, 'LLLL - yyyy', { locale: it })
+  const dateLocale = localeMap[localeToUse as keyof typeof localeMap] || localeMap['en']
+  const monthName = format(currentDate, 'LLLL - yyyy', { locale: dateLocale })
 
   const monthLabel = translate('general.month', localeToUse, providedKeys)
   const weekLabel = translate('general.week', localeToUse, providedKeys)
@@ -173,14 +184,23 @@ const CalendarContainer = ({
 
 
   const verticalClass = vertical ? ' vertical' : ''
+  
   let className = ''
   switch (calendarMode) {
     case CALENDAR_MODES.WEEK:
-      className = `week-view${verticalClass}`
+      if (isMobile) {
+        className = 'week-view-mobile'
+      } else {
+        className = `week-view${verticalClass}`
+      }
       break
 
     case CALENDAR_MODES.MONTH:
-      className = 'month-view'
+      if (isMobile) {
+        className = 'month-view-mobile'
+      } else {
+        className = 'month-view'
+      }
       break
 
     // no default
@@ -237,6 +257,9 @@ const CalendarContainer = ({
   const weekModeClass = isWeekMode ? ' week' : ''
   const calendarContainerBodyClass = `calendar-container-body${weekModeClass}${verticalClass}`
 
+  const desktopModeSelector = isMobile ? undefined: <ModeSelector options={modeOptions} />
+  const mobileModeSelector = isMobile ? <ModeSelector options={modeOptions} /> : undefined
+
   return (
     <div className='flex flex-col p-4 gap-2 h-[90vh]'>
       <ModalWrapper show={showAppointmentModal}
@@ -253,6 +276,8 @@ const CalendarContainer = ({
           locale={localeToUse}
           providedKeys={providedKeys}
           config={config}
+          isMobile={isMobile}
+          closeFun={resetSelectedSlot}
         />
       </ModalWrapper>
       <div className="calendar-controls">
@@ -262,29 +287,40 @@ const CalendarContainer = ({
           currentValue={monthName}
           locale={localeToUse}
           providedKeys={providedKeys}
+          modeSelector={mobileModeSelector}
         />
-        <ModeSelector options={modeOptions} />
+        {!isMobile && desktopModeSelector}
       </div>
       <div className={calendarContainerBodyClass}>
-        <CalendarHeader vertical={isWeekMode && vertical} />
-        <div className={className}>
-          <PlaceHolderDayComponent placeHolderDays={startPlaceHoldersDays} />
-          {
-            days.map((current, idx) => (
-              <DayComponent
-                key={`day_${idx}`}
-                isWeek={isWeekMode}
-                currentValue={current}
-                dayClickFun={selectDay}
-                configuration={config}
-                appointments={appointments}
-                limitPastDates={limitPastDates}
-                vertical={vertical}
-              />
-            ))
-          }
-          <PlaceHolderDayComponent placeHolderDays={endPlaceHoldersDays} />
-        </div>
+        {!isMobile && <CalendarHeader vertical={isWeekMode && vertical} locale={localeToUse} />}
+        {!(isMobile && isWeekMode) && (
+          <div className={className}>
+            {
+              !(isMobile && !isWeekMode) && 
+              <PlaceHolderDayComponent placeHolderDays={startPlaceHoldersDays} />
+            }
+            {
+              days.map((current, idx) => (
+                <DayComponent
+                  key={`day_${idx}`}
+                  isWeek={isWeekMode}
+                  currentValue={current}
+                  dayClickFun={selectDay}
+                  configuration={config}
+                  appointments={appointments}
+                  limitPastDates={limitPastDates}
+                  vertical={vertical}
+                  isMobile={isMobile}
+                  localeToUse={localeToUse}
+                />
+              ))
+            }
+            {
+              !(isMobile && !isWeekMode) && 
+                <PlaceHolderDayComponent placeHolderDays={endPlaceHoldersDays} />
+            }
+          </div>
+        )}
         <WeekMode appointments={appointments}
           show={isWeekMode}
           days={days}
@@ -294,6 +330,10 @@ const CalendarContainer = ({
           hideAppointments={hideAppointments}
           vertical={vertical}
           selectSlot={selectSlot}
+          isMobile={isMobile}
+          dayClickFun={selectDay}
+          currentDate={currentDate}
+          locale={localeToUse}
         />
       </div >
     </div>

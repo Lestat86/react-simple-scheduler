@@ -66,6 +66,13 @@ const defaultKeys: tLocaleKeysMap = {
     "fr": "Réserver",
     "es": "Reservar"
   },
+  "appointment.cancel": {
+    "it": "Annulla",
+    "en": "Cancel",
+    "de": "Abbrechen",
+    "fr": "Annuler",
+    "es": "Cancelar"
+  },
   "appointment.description": {
     "it": "Descrizione",
     "en": "Description",

@@ -21,10 +21,27 @@ const AppointmentDescription = ({
       setDescription(e.target.value)
     }
 
+    const selectClasses = `
+      w-full px-5 py-4 mt-1 text-gray-900 bg-white border border-gray-200 rounded-lg
+      transition-all duration-200 ease-in-out
+      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+      hover:border-gray-300
+      disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
+      cursor-pointer min-h-[52px]
+    `.trim().replace(/\s+/g, ' ')
+
     return (
       <div className="flex flex-col">
-        <span className='font-semibold'>Reason</span>
-        <select name="appointmentReasons" id="appointmentReasons" onChange={onDescriptionChange}>
+        <label className='font-medium text-gray-700 text-sm mb-1'>Motivo</label>
+        <select 
+          name="appointmentReasons" 
+          id="appointmentReasons" 
+          onChange={onDescriptionChange}
+          className={selectClasses}
+          disabled={disabled}
+          value={currentDescription}
+        >
+          <option value="">Seleziona un motivo...</option>
           {appointmentReasons!.map((current) => (
             <option value={current} key={current}>{current}</option>
           ))}

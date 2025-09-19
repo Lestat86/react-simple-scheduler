@@ -21,6 +21,8 @@ type Props = {
   limitPastDates?: boolean
   locale: string
   providedKeys?: tLocaleKeysMap
+  isMobile?: boolean
+  closeFun?: () => void
 }
 
 const AddAppointment = ({
@@ -33,7 +35,9 @@ const AddAppointment = ({
   config,
   limitPastDates,
   locale,
-  providedKeys
+  providedKeys,
+  isMobile,
+  closeFun
 }: Props) => {
   const canSelectTime = startHour === undefined
 
@@ -175,10 +179,13 @@ const AddAppointment = ({
   const emailLabel = translate('appointment.email', locale, providedKeys)
   const dateAndTimeLabel = translate('appointment.dateAndTime', locale, providedKeys)
   const bookLabel = translate('appointment.book', locale, providedKeys)
+  const cancelLabel = translate('appointment.cancel', locale, providedKeys)
+
+  const formClass = isMobile ? 'appointment-form-mobile' : 'flex gap-4'
 
   return (
     <div className='flex flex-col items-start justify-center gap-4 mt-4'>
-      <div className="flex gap-4">
+      <div className={formClass}>
         <div className="flex flex-col gap-4">
           <InputWithError<string> value={title}
             onChangeCB={setTitle}
@@ -212,7 +219,7 @@ const AddAppointment = ({
           />
         </div>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 w-full">
         <span className='font-semibold'>{dateAndTimeLabel}</span>
         <TimePicker selectedHour={selectedHour}
           selectedDate={selectedDate}
@@ -224,7 +231,12 @@ const AddAppointment = ({
         />
       </div>
       {!hasAppointment &&
-        <div className="flex justify-end w-full">
+        <div className="flex justify-end w-full gap-2">
+          {closeFun && (
+            <Button variant={BUTTON_VARIANTS.OUTLINED}
+              caption={cancelLabel}
+              onClick={closeFun} />
+          )}
           <Button variant={BUTTON_VARIANTS.PRIMARY}
             caption={bookLabel}
             onClick={onClick} />

@@ -1,5 +1,6 @@
 import { tAppointment, tConfiguration, tHours, tTimeFormat } from '../../exported-types'
 import HourSlot from './hours-slot'
+import WeekModeMobile from './week-mode-mobile'
 
 type Props = {
   show: boolean
@@ -12,6 +13,9 @@ type Props = {
   hideAppointments?: boolean
   vertical?: boolean
   selectSlot: (current: tTimeFormat, selectedDate: Date) => void
+  isMobile?: boolean
+  dayClickFun?: (current: Date) => void
+  currentDate?: Date
 }
 
 const WeekMode = ({
@@ -24,6 +28,10 @@ const WeekMode = ({
   hideAppointments,
   vertical,
   selectSlot,
+  isMobile,
+  dayClickFun,
+  currentDate,
+  locale
 }: Props) => {
   if (!show) {
     return null
@@ -32,6 +40,22 @@ const WeekMode = ({
   const verticalPart = vertical ? ' vertical' : ''
   const slotsClass = `container${verticalPart}`
   const containerClass = `slots${verticalPart}`
+
+  if (isMobile) {
+    return (
+      <WeekModeMobile
+        appointments={appointments}
+        days={days}
+        hoursSlots={hoursSlots}
+        config={config}
+        limitPastDates={limitPastDates}
+        selectSlot={selectSlot}
+        dayClickFun={dayClickFun}
+        currentDate={currentDate}
+        locale={locale}
+      />
+    )
+  }
 
   return (
     <div className="slots-container">
