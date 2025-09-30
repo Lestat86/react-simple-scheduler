@@ -5,6 +5,7 @@ import { exampleAppointments, exampleConfig } from './utils/mocks'
 
 import './styles.css'
 import Button from './components/button'
+import { VIEW_MODES } from './types/misc'
 
 const loremipsum =  `
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed scelerisque, risus id sagittis hendrerit, turpis diam scelerisque augue, in imperdiet dolor metus ac turpis. Duis lobortis justo quis nisi consequat, id malesuada enim vehicula. Cras fringilla blandit risus eu mattis. Sed vel quam vel mauris pharetra varius non in quam. Aenean laoreet sed eros in posuere. In rutrum mi ut neque dictum tristique. Pellentesque pharetra, mi sed dignissim ornare, mi libero tincidunt dui, a commodo risus libero eu enim. Donec massa nibh, ultrices quis odio ut, fringilla ultrices risus.
@@ -47,6 +48,7 @@ function App() {
         showReminderCheck={true}
         privacyDoc={loremipsum}
         showEmail={true}
+        viewModes={VIEW_MODES.BOTH}
       />
     </div>
   )

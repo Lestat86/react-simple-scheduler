@@ -197,7 +197,8 @@ const AddAppointment = ({
     setSendReminder(updated)
   }
 
-  const showPrivacyDoc = notNullishCheck(privacyDoc)
+  const showPrivacyDoc = notNullishCheck(privacyDoc) && !hasAppointment
+  const showReminderToggle = showReminderCheck && !hasAppointment
 
   return (
     <div className='flex flex-col items-start justify-center gap-4 mt-4'>
@@ -249,7 +250,7 @@ const AddAppointment = ({
           providedKeys={providedKeys}
         />
       </div>
-      {showReminderCheck && 
+      {showReminderToggle && 
       <label className="inline-flex items-center mb-5 cursor-pointer">
         <input type="checkbox" 
               checked={sendReminder} 
@@ -261,7 +262,7 @@ const AddAppointment = ({
           </span>
       </label>
       }
-      {
+      {  
         showPrivacyDoc &&  
           <PrivacyText 
             privacyDoc={privacyDoc} 

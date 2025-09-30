@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CALENDAR_MODES, tCalendarModes } from '../types/misc'
+import { CALENDAR_MODES, tCalendarModes, tViewModes, VIEW_MODES } from '../types/misc'
 import {
   getEnclosingMonthDays,
   getEnclosingWeekDays,
@@ -52,6 +52,7 @@ type Props = {
   showReminderCheck: boolean
   privacyDoc?:string
   showEmail?: boolean
+  viewModes: tViewModes 
 }
 
 const CalendarContainer = ({
@@ -66,14 +67,18 @@ const CalendarContainer = ({
   vertical,
   showReminderCheck,
   privacyDoc,
-  showEmail
+  showEmail,
+  viewModes
 }: Props) => {
+  const isMonthForced = viewModes === VIEW_MODES.MONTH 
+  const calendarDefault = isMonthForced ? CALENDAR_MODES.MONTH : CALENDAR_MODES.WEEK
+
   const isMobile = useMobile()
   const now = new Date()
   const [currentDate, setCurrentDate] = useState(now)
   const [currentSlot, setCurrentSlot] = useState<tHours | undefined>()
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
-  const [calendarMode, setCalendarMode] = useState<tCalendarModes>(CALENDAR_MODES.WEEK)
+  const [calendarMode, setCalendarMode] = useState<tCalendarModes>(calendarDefault)
   const [days, setDays] = useState<Date[]>([])
   const [startPlaceHoldersDays, setStartPlaceHoldersDays] = useState(0)
   const [endPlaceHoldersDays, setEndPlaceHoldersDays] = useState(0)
@@ -179,7 +184,7 @@ const CalendarContainer = ({
   const monthLabel = translate('general.month', localeToUse, providedKeys)
   const weekLabel = translate('general.week', localeToUse, providedKeys)
 
-  const modeOptions = [
+  let modeOptions = [
     {
       label: monthLabel,
       changeFun: setMonthMode
@@ -190,6 +195,40 @@ const CalendarContainer = ({
     },
   ]
 
+  switch(viewModes) {
+    case VIEW_MODES.WEEK:
+      modeOptions = [ 
+    {
+      label: weekLabel,
+      changeFun: setWeekMode
+    },
+  ]
+    break
+
+    case VIEW_MODES.MONTH:
+      modeOptions = [
+    {
+      label: monthLabel,
+      changeFun: setMonthMode
+    }    
+  ]
+    break
+
+      case VIEW_MODES.BOTH:
+      modeOptions = [
+    {
+      label: monthLabel,
+      changeFun: setMonthMode
+    },
+    {
+      label: weekLabel,
+      changeFun: setWeekMode
+    },
+  ]
+    break
+
+      // no default
+  }
 
   const verticalClass = vertical ? ' vertical' : ''
   
@@ -265,8 +304,11 @@ const CalendarContainer = ({
   const weekModeClass = isWeekMode ? ' week' : ''
   const calendarContainerBodyClass = `calendar-container-body${weekModeClass}${verticalClass}`
 
-  const desktopModeSelector = isMobile ? undefined: <ModeSelector options={modeOptions} />
-  const mobileModeSelector = isMobile ? <ModeSelector options={modeOptions} /> : undefined
+  const showModeSelector = viewModes === VIEW_MODES.BOTH
+  const modeSelectorEl =  <ModeSelector show={showModeSelector} options={modeOptions} />
+
+  const desktopModeSelector = isMobile ? undefined: modeSelectorEl 
+  const mobileModeSelector = isMobile ? modeSelectorEl : undefined
 
   return (
     <div className='flex flex-col p-4 gap-2 h-[90vh]'>
