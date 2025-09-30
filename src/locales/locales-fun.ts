@@ -142,6 +142,20 @@ const defaultKeys: tLocaleKeysMap = {
     "de": "Termin",
     "fr": "Rendez-vous",
     "es": "Cita"
+  },
+"appointment.sendConfirmation": {
+    "it": "Mandami un promemoria",
+    "en": "Send me a reminder",
+    "de": "",
+    "fr": "",
+    "es": ""
+  },
+  "appointment.privacyText":{
+    "it": "Informativa privacy",
+    "en": "Privacy terms",
+    "de": "",
+    "fr": "",
+    "es": ""
   }
 } as const
 

@@ -19,13 +19,7 @@ import {
 } from 'date-fns'
 import { it, enUS, de, fr, es } from 'date-fns/locale'
 
-const localeMap = {
-  'it': it,
-  'en': enUS,
-  'de': de,
-  'fr': fr,
-  'es': es
-}
+
 import ModeSelector from './calendar/mode-selector'
 import PlaceHolderDayComponent from './calendar/placeholder-days'
 import CalendarHeader from './calendar/calendar-header'
@@ -37,6 +31,14 @@ import { tLocaleKeysMap } from '../types/locale'
 import WeekMode from './calendar/week-mode'
 import useMobile from '../hooks/use-mobile'
 
+const localeMap = {
+  'it': it,
+  'en': enUS,
+  'de': de,
+  'fr': fr,
+  'es': es
+}
+
 type Props = {
   appointments: tAppointment[]
   addAppointmentFun: (appointment: tAppointment) => void
@@ -47,6 +49,9 @@ type Props = {
   providedKeys?: tLocaleKeysMap
   hideAppointments?: boolean
   vertical?: boolean
+  showReminderCheck: boolean
+  privacyDoc?:string
+  showEmail?: boolean
 }
 
 const CalendarContainer = ({
@@ -58,7 +63,10 @@ const CalendarContainer = ({
   locale,
   providedKeys,
   hideAppointments,
-  vertical
+  vertical,
+  showReminderCheck,
+  privacyDoc,
+  showEmail
 }: Props) => {
   const isMobile = useMobile()
   const now = new Date()
@@ -278,6 +286,9 @@ const CalendarContainer = ({
           config={config}
           isMobile={isMobile}
           closeFun={resetSelectedSlot}
+          showReminderCheck={showReminderCheck}
+          privacyDoc={privacyDoc}
+          showEmail={showEmail}
         />
       </ModalWrapper>
       <div className="calendar-controls">

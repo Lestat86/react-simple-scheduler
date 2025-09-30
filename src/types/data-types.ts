@@ -31,4 +31,5 @@ export type tAppointment = {
   phone: string
   email?: string
   description?: string
+  sendReminder?: boolean
 }

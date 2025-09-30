@@ -3,12 +3,13 @@ import { tAppointment, tConfiguration, tDay, tHours, tTimeFormat } from '../../t
 import Button from '../button'
 import { BUTTON_VARIANTS } from '../../constants/ui'
 import TimePicker from './time-picker'
-import { findMatchingAppointment, isTimeExcluded, slotIsBooked } from '../../utils/misc'
+import { findMatchingAppointment, isTimeExcluded, notNullishCheck, slotIsBooked } from '../../utils/misc'
 import InputWithError from '../input-with-error'
 import { tAppoinmentErrors } from '../../types/misc'
 import AppointmentDescription from './appointment-description'
 import { translate } from '../../locales/locales-fun'
 import { tLocaleKeysMap } from '../../types/locale'
+import PrivacyText from './privacy-text'
 
 type Props = {
   startHour?: tHours
@@ -23,6 +24,9 @@ type Props = {
   providedKeys?: tLocaleKeysMap
   isMobile?: boolean
   closeFun?: () => void
+  showReminderCheck?: boolean
+  privacyDoc?: string
+  showEmail?: boolean
 }
 
 const AddAppointment = ({
@@ -37,7 +41,10 @@ const AddAppointment = ({
   locale,
   providedKeys,
   isMobile,
-  closeFun
+  closeFun,
+  showReminderCheck,
+  privacyDoc,
+  showEmail
 }: Props) => {
   const canSelectTime = startHour === undefined
 
@@ -109,7 +116,7 @@ const AddAppointment = ({
   const [name, setName] = useState(defaultName)
   const [phone, setPhone] = useState(defaultPhone)
   const [email, setEmail] = useState(defaultEmail)
-
+  const [sendReminder, setSendReminder] = useState(false)
 
   const [errors, setErrors] = useState<tAppoinmentErrors>({})
 
@@ -180,8 +187,17 @@ const AddAppointment = ({
   const dateAndTimeLabel = translate('appointment.dateAndTime', locale, providedKeys)
   const bookLabel = translate('appointment.book', locale, providedKeys)
   const cancelLabel = translate('appointment.cancel', locale, providedKeys)
+  const sendConfirmationLabel = translate('appointment.sendConfirmation', locale, providedKeys)
 
   const formClass = isMobile ? 'appointment-form-mobile' : 'flex gap-4'
+
+  const onChange = () => {
+    const updated = !sendReminder
+
+    setSendReminder(updated)
+  }
+
+  const showPrivacyDoc = notNullishCheck(privacyDoc)
 
   return (
     <div className='flex flex-col items-start justify-center gap-4 mt-4'>
@@ -212,11 +228,14 @@ const AddAppointment = ({
             disabled={hasAppointment}
             errorMessage={errors.phone}
           />
+          {
+            showEmail && 
           <InputWithError<string> value={email}
             onChangeCB={setEmail}
             label={emailLabel}
             disabled={hasAppointment}
           />
+          }
         </div>
       </div>
       <div className="flex flex-col gap-2 w-full">
@@ -230,6 +249,26 @@ const AddAppointment = ({
           providedKeys={providedKeys}
         />
       </div>
+      {showReminderCheck && 
+      <label className="inline-flex items-center mb-5 cursor-pointer">
+        <input type="checkbox" 
+              checked={sendReminder} 
+              onChange={onChange} 
+              className="sr-only peer" />
+        <div className="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-maincolor dark:peer-focus:ring-maincolor rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-maincolor dark:peer-checked:bg-maincolor"></div>        
+          <span className="ms-3 font-medium">
+            {sendConfirmationLabel}
+          </span>
+      </label>
+      }
+      {
+        showPrivacyDoc &&  
+          <PrivacyText 
+            privacyDoc={privacyDoc} 
+            locale={locale}
+            providedKeys={providedKeys}
+          />
+      }
       {!hasAppointment &&
         <div className="flex justify-end w-full gap-2">
           {closeFun && (
@@ -240,7 +279,8 @@ const AddAppointment = ({
           <Button variant={BUTTON_VARIANTS.PRIMARY}
             caption={bookLabel}
             onClick={onClick} />
-        </div>}
+        </div>
+      }
     </div>
   )
 }
