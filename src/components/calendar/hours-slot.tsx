@@ -1,5 +1,6 @@
-import { tAppointment, tConfiguration, tDay, tTimeFormat } from '../../types/data-types'
-import { isTimeExcluded, slotIsBooked } from '../../utils/misc'
+import { tAppointment, tAppointmentPreset, tConfiguration, tDay, tTimeFormat } from '../../types/data-types'
+import { isTimeExcluded, slotIsBooked, slotHasAvailableTime, getAppointmentsInSlot, shouldRenderAppointmentInSlot } from '../../utils/misc'
+import AppointmentBlock from './appointment-block'
 
 type Props = {
   currentDate: Date
@@ -10,6 +11,9 @@ type Props = {
   limitPastDates?: boolean
   hideAppointments?: boolean
   isMobile?: boolean
+  appointmentDurations?: number[]
+  appointmentPresets?: tAppointmentPreset[]
+  onAppointmentClick?: (appointment: tAppointment) => void
 }
 
 const HourSlot = ({
@@ -20,7 +24,10 @@ const HourSlot = ({
   appointments,
   limitPastDates,
   hideAppointments,
-  isMobile
+  isMobile,
+  appointmentDurations,
+  appointmentPresets,
+  onAppointmentClick
 }: Props) => {
 
 
@@ -30,6 +37,22 @@ const HourSlot = ({
   const timeExcluded = isTimeExcluded(currentDay, currentValue, configuration.timeExclusions)
 
   const hasAppointment = slotIsBooked(appointments, currentDate, currentValue)
+  const hasAvailableTime = slotHasAvailableTime(
+    appointments, 
+    currentDate, 
+    currentValue, 
+    appointmentDurations, 
+    appointmentPresets
+  )
+  
+  // Get all appointments in this slot for individual rendering
+  const appointmentsInSlot = getAppointmentsInSlot(appointments, currentDate, currentValue)
+  
+  // Filter appointments to only render those that should be displayed in this slot
+  // (to avoid duplicating cross-slot appointments)
+  const appointmentsToRender = appointmentsInSlot.filter(appointment => 
+    shouldRenderAppointmentInSlot(appointment, currentDate, currentValue)
+  )
 
   const parsedDate = new Date(currentDate)
   parsedDate.setHours(currentValue.hours, currentValue.minutes)
@@ -39,20 +62,34 @@ const HourSlot = ({
 
   const pastExcludedClass = pastExcluded ? ' past-excluded' : ''
   const excludedClass = isExcluded ? ' excluded' : ''
-  const bookedClass = hasAppointment ? ' booked' : ''
+  // Use partial booking class if has appointments but still has available time
+  const bookedClass = hasAppointment && !hasAvailableTime ? ' booked' : ''
+  const partialBookedClass = hasAppointment && hasAvailableTime ? ' partial-booked' : ''
 
-  const className = `hour-slot${excludedClass}${bookedClass}${pastExcludedClass}`
+  const className = `hour-slot${excludedClass}${bookedClass}${partialBookedClass}${pastExcludedClass}`
 
   const onClick = () => {
     if (isExcluded || pastExcluded) {
       return
     }
 
-    if (hasAppointment && hideAppointments) {
+    // Block if no available time (fully booked)
+    if (!hasAvailableTime) {
+      return
+    }
+
+    // Block if hideAppointments is true and there are appointments but no available time
+    if (hasAppointment && hideAppointments && !hasAvailableTime) {
       return
     }
 
     selectFun(currentValue, currentDate)
+  }
+
+  const handleAppointmentClick = (appointment: tAppointment) => {
+    if (onAppointmentClick) {
+      onAppointmentClick(appointment)
+    }
   }
 
   if (isMobile) {
@@ -62,6 +99,16 @@ const HourSlot = ({
         <span className='font-semibold text-xs'>
           {currentValue.hours}:00 - {currentValue.hours + 1}:00
         </span>
+        {!hideAppointments && appointmentsToRender.map((appointment, index) => (
+          <AppointmentBlock
+            key={`${appointment.dateStart.getTime()}_${index}`}
+            appointment={appointment}
+            currentDate={currentDate}
+            currentValue={currentValue}
+            onClick={handleAppointmentClick}
+            isMobile={true}
+          />
+        ))}
       </div>
     )
   }
@@ -72,6 +119,16 @@ const HourSlot = ({
       <span className='font-semibold text-sm'>
         {currentValue.hours} - {currentValue.hours + 1}
       </span>
+      {!hideAppointments && appointmentsToRender.map((appointment, index) => (
+        <AppointmentBlock
+          key={`${appointment.dateStart.getTime()}_${index}`}
+          appointment={appointment}
+          currentDate={currentDate}
+          currentValue={currentValue}
+          onClick={handleAppointmentClick}
+          isMobile={false}
+        />
+      ))}
     </div>
   )
 }

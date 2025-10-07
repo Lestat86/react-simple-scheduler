@@ -23,7 +23,7 @@ import { it, enUS, de, fr, es } from 'date-fns/locale'
 import ModeSelector from './calendar/mode-selector'
 import PlaceHolderDayComponent from './calendar/placeholder-days'
 import CalendarHeader from './calendar/calendar-header'
-import { tAppointment, tConfiguration, tHours, tTimeFormat } from '../types/data-types'
+import { tAppointment, tAppointmentPreset, tConfiguration, tHours, tTimeFormat } from '../types/data-types'
 import AddAppointment from './appointments/add-appointment'
 import ModalWrapper from './modal-wrapper'
 import { getUserLocale, translate } from '../locales/locales-fun'
@@ -53,6 +53,8 @@ type Props = {
   privacyDoc?:string
   showEmail?: boolean
   viewModes: tViewModes 
+  appointmentDurations?: number[]
+  appointmentPresets?: tAppointmentPreset[]
 }
 
 const CalendarContainer = ({
@@ -68,7 +70,9 @@ const CalendarContainer = ({
   showReminderCheck,
   privacyDoc,
   showEmail,
-  viewModes
+  viewModes,
+  appointmentDurations,
+  appointmentPresets
 }: Props) => {
   const isMonthForced = viewModes === VIEW_MODES.MONTH 
   const calendarDefault = isMonthForced ? CALENDAR_MODES.MONTH : CALENDAR_MODES.WEEK
@@ -79,6 +83,8 @@ const CalendarContainer = ({
   const [currentSlot, setCurrentSlot] = useState<tHours | undefined>()
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
   const [calendarMode, setCalendarMode] = useState<tCalendarModes>(calendarDefault)
+  const [selectedAppointment, setSelectedAppointment] = useState<tAppointment | undefined>()
+  const [forceNewAppointment, setForceNewAppointment] = useState<boolean>(false)
   const [days, setDays] = useState<Date[]>([])
   const [startPlaceHoldersDays, setStartPlaceHoldersDays] = useState(0)
   const [endPlaceHoldersDays, setEndPlaceHoldersDays] = useState(0)
@@ -256,15 +262,30 @@ const CalendarContainer = ({
   const selectSlot = (current: tTimeFormat, selectedDate: Date) => {
     setCurrentSlot(current.hours)
     setSelectedDate(selectedDate)
+    setSelectedAppointment(undefined) // Clear selected appointment for new appointment creation
+    setForceNewAppointment(true) // Force new appointment creation
   }
 
   const resetSelectedSlot = () => {
     setCurrentSlot(undefined)
     setSelectedDate(undefined)
+    setSelectedAppointment(undefined)
+    setForceNewAppointment(false)
+  }
+
+  const handleAppointmentClick = (appointment: tAppointment) => {
+    // Set the slot and date based on the appointment
+    const appointmentHour = appointment.dateStart.getHours() as tHours
+    setCurrentSlot(appointmentHour)
+    setSelectedDate(appointment.dateStart)
+    setSelectedAppointment(appointment)
+    setForceNewAppointment(false) // Don't force new appointment, we want to view this one
   }
 
   const selectDay = (selectedDate: Date) => {
     setSelectedDate(selectedDate)
+    setSelectedAppointment(undefined) // Clear selected appointment for new appointment creation
+    setForceNewAppointment(true) // Force new appointment creation in month mode
   }
 
   const internalAddAppointmentFun = (appointment: tAppointment) => {
@@ -296,8 +317,11 @@ const CalendarContainer = ({
   const isWeekMode = calendarMode === CALENDAR_MODES.WEEK
   const slotSelected = currentSlot !== undefined
   const daySelected = selectedDate !== undefined
+  const appointmentSelected = selectedAppointment !== undefined
 
-  const showAppointmentModal = isWeekMode ? slotSelected : daySelected
+  const showAppointmentModal = isWeekMode 
+    ? (slotSelected || appointmentSelected) 
+    : (daySelected || appointmentSelected)
 
   const titleLabel = translate('general.appointment', localeToUse, providedKeys)
 
@@ -331,6 +355,10 @@ const CalendarContainer = ({
           showReminderCheck={showReminderCheck}
           privacyDoc={privacyDoc}
           showEmail={showEmail}
+          appointmentDurations={appointmentDurations}
+          appointmentPresets={appointmentPresets}
+          selectedAppointment={selectedAppointment}
+          forceNewAppointment={forceNewAppointment}
         />
       </ModalWrapper>
       <div className="calendar-controls">
@@ -387,6 +415,9 @@ const CalendarContainer = ({
           dayClickFun={selectDay}
           currentDate={currentDate}
           locale={localeToUse}
+          appointmentDurations={appointmentDurations}
+          appointmentPresets={appointmentPresets}
+          onAppointmentClick={handleAppointmentClick}
         />
       </div >
     </div>

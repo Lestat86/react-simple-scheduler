@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { format, getDate, startOfDay } from 'date-fns'
 import { it, enUS, de, fr, es } from 'date-fns/locale'
-import { tAppointment, tConfiguration, tHours, tTimeFormat, tDay } from '../../exported-types'
+import { tAppointment, tAppointmentPreset, tConfiguration, tHours, tTimeFormat, tDay } from '../../exported-types'
 import HourSlot from './hours-slot'
 
 const localeMap = {
@@ -22,6 +22,9 @@ type Props = {
   dayClickFun?: (current: Date) => void
   currentDate?: Date
   locale?: string
+  appointmentDurations?: number[]
+  appointmentPresets?: tAppointmentPreset[]
+  onAppointmentClick?: (appointment: tAppointment) => void
 }
 
 const WeekModeMobile = ({
@@ -33,7 +36,10 @@ const WeekModeMobile = ({
   selectSlot,
   dayClickFun,
   currentDate,
-  locale
+  locale,
+  appointmentDurations,
+  appointmentPresets,
+  onAppointmentClick
 }: Props) => {
   let reorderedDays = days
   if (currentDate) {
@@ -134,6 +140,9 @@ const WeekModeMobile = ({
                           limitPastDates={limitPastDates}
                           hideAppointments={false}
                           isMobile={true}
+                          appointmentDurations={appointmentDurations}
+                          appointmentPresets={appointmentPresets}
+                          onAppointmentClick={onAppointmentClick}
                         />
                       )
                     })

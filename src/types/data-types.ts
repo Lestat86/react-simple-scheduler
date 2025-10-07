@@ -33,3 +33,9 @@ export type tAppointment = {
   description?: string
   sendReminder?: boolean
 }
+
+export type tAppointmentPreset = {
+  name: string
+  duration: number
+  editorLock?: boolean
+}

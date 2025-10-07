@@ -1,4 +1,4 @@
-import { tAppointment, tConfiguration, tHours, tTimeFormat } from '../../exported-types'
+import { tAppointment, tAppointmentPreset, tConfiguration, tHours, tTimeFormat } from '../../exported-types'
 import HourSlot from './hours-slot'
 import WeekModeMobile from './week-mode-mobile'
 
@@ -16,6 +16,9 @@ type Props = {
   isMobile?: boolean
   dayClickFun?: (current: Date) => void
   currentDate?: Date
+  appointmentDurations?: number[]
+  appointmentPresets?: tAppointmentPreset[]
+  onAppointmentClick?: (appointment: tAppointment) => void
 }
 
 const WeekMode = ({
@@ -31,7 +34,10 @@ const WeekMode = ({
   isMobile,
   dayClickFun,
   currentDate,
-  locale
+  locale,
+  appointmentDurations,
+  appointmentPresets,
+  onAppointmentClick
 }: Props) => {
   if (!show) {
     return null
@@ -53,6 +59,9 @@ const WeekMode = ({
         dayClickFun={dayClickFun}
         currentDate={currentDate}
         locale={locale}
+        appointmentDurations={appointmentDurations}
+        appointmentPresets={appointmentPresets}
+        onAppointmentClick={onAppointmentClick}
       />
     )
   }
@@ -79,6 +88,9 @@ const WeekMode = ({
                       appointments={appointments}
                       limitPastDates={limitPastDates}
                       hideAppointments={hideAppointments}
+                      appointmentDurations={appointmentDurations}
+                      appointmentPresets={appointmentPresets}
+                      onAppointmentClick={onAppointmentClick}
                     />
                   )
                 })

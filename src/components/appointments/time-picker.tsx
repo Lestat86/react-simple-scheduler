@@ -3,6 +3,7 @@ import { tHours } from '../../types/data-types'
 import { format } from 'date-fns'
 import { translate } from '../../locales/locales-fun'
 import { tLocaleKeysMap } from '../../types/locale'
+import { DEFAULT_SLOT_DURATION } from '../../constants/misc'
 
 type Props = {
   selectedHour: tHours
@@ -12,6 +13,8 @@ type Props = {
   hoursSlot: tHours[]
   locale: string
   providedKeys?: tLocaleKeysMap
+  duration?: number // duration in minutes
+  smartStartTime?: Date // calculated optimal start time
 }
 
 const TimePicker = ({ selectedHour,
@@ -20,11 +23,31 @@ const TimePicker = ({ selectedHour,
   setStartHour,
   hoursSlot,
   locale,
-  providedKeys }: Props) => {
+  providedKeys,
+  duration = DEFAULT_SLOT_DURATION,
+  smartStartTime }: Props) => {
   const formattedDate = format(selectedDate, 'dd/MM/yyyy')
 
   const timeFromLabel = translate('appointment.timeFrom', locale, providedKeys)
-  const timeToLabel = translate('appointment.timeFrom', locale, providedKeys)
+  const timeToLabel = translate('appointment.timeTo', locale, providedKeys)
+
+  // Calculate end time based on duration
+  const calculateEndTime = (startHour: tHours, durationMinutes: number, smartTime?: Date) => {
+    const startTime = smartTime ? new Date(smartTime) : new Date()
+
+    if (!smartTime) {
+      startTime.setHours(startHour, 0, 0, 0)
+    }
+    
+    const endTime = new Date(startTime.getTime() + durationMinutes * 60000)
+
+    return format(endTime, 'HH:mm')
+  }
+
+  const endTime = calculateEndTime(selectedHour, duration, smartStartTime)
+  
+  // Format smart start time if available
+  const displayStartTime = smartStartTime ? format(smartStartTime, 'HH:mm') : `${selectedHour}:00`
 
   if (!canSelectTime) {
     return (
@@ -38,11 +61,11 @@ const TimePicker = ({ selectedHour,
         <div className="flex items-center gap-2 text-sm">
           <span className="text-gray-600">{timeFromLabel}</span>
           <span className="px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 font-medium">
-            {selectedHour}:00
+            {displayStartTime}
           </span>
           <span className="text-gray-600">{timeToLabel}</span>
           <span className="px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 font-medium">
-            {selectedHour + 1}:00
+            {endTime}
           </span>
         </div>
       </div>
@@ -83,7 +106,7 @@ const TimePicker = ({ selectedHour,
             <option value={hour} key={hour}>{hour}:00</option>
           ))}
         </select>
-        <span className="text-gray-600">{timeToLabel} {selectedHour + 1}:00</span>
+        <span className="text-gray-600">{timeToLabel} {endTime}</span>
       </div>
     </div>
   )

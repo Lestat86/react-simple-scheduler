@@ -1,15 +1,16 @@
 import { useState } from 'react'
-import { tAppointment, tConfiguration, tDay, tHours, tTimeFormat } from '../../types/data-types'
+import { tAppointment, tAppointmentPreset, tConfiguration, tDay, tHours, tTimeFormat } from '../../types/data-types'
 import Button from '../button'
 import { BUTTON_VARIANTS } from '../../constants/ui'
 import TimePicker from './time-picker'
-import { findMatchingAppointment, isTimeExcluded, notNullishCheck, slotIsBooked } from '../../utils/misc'
+import { findMatchingAppointment, isTimeExcluded, notNullishCheck, slotHasAvailableTime, findNextAvailableTime, getMinimumSlotDuration } from '../../utils/misc'
 import InputWithError from '../input-with-error'
 import { tAppoinmentErrors } from '../../types/misc'
 import AppointmentDescription from './appointment-description'
 import { translate } from '../../locales/locales-fun'
 import { tLocaleKeysMap } from '../../types/locale'
 import PrivacyText from './privacy-text'
+import { DEFAULT_SLOT_DURATION } from '../../constants/misc'
 
 type Props = {
   startHour?: tHours
@@ -27,6 +28,10 @@ type Props = {
   showReminderCheck?: boolean
   privacyDoc?: string
   showEmail?: boolean
+  appointmentDurations?: number[]
+  appointmentPresets?: tAppointmentPreset[]
+  selectedAppointment?: tAppointment // Specific appointment to view/edit
+  forceNewAppointment?: boolean // Force new appointment creation, don't search for existing
 }
 
 const AddAppointment = ({
@@ -44,7 +49,11 @@ const AddAppointment = ({
   closeFun,
   showReminderCheck,
   privacyDoc,
-  showEmail
+  showEmail,
+  appointmentDurations,
+  appointmentPresets,
+  selectedAppointment,
+  forceNewAppointment
 }: Props) => {
   const canSelectTime = startHour === undefined
 
@@ -54,25 +63,45 @@ const AddAppointment = ({
   let defaultPhone = ''
   let defaultEmail = ''
   let hasAppointment = false
+  let existingAppointmentDuration = DEFAULT_SLOT_DURATION
 
-  if (!canSelectTime) {
+  // Use selectedAppointment if provided
+  // Only auto-search for appointment when we can't select time (week mode with fixed slot)
+  // AND we're not forcing a new appointment creation
+  const appointmentToView = selectedAppointment || 
+    (!canSelectTime && !forceNewAppointment ? findMatchingAppointment(appointments, selectedDate, {
+      hours: startHour,
+      minutes: 0
+    }) : undefined)
+
+  if (appointmentToView) {
+    hasAppointment = true
+    defaultTitle = appointmentToView.title ?? ''
+    defaultDescription = appointmentToView.description ?? ''
+    defaultName = appointmentToView.name ?? ''
+    defaultPhone = appointmentToView.phone ?? ''
+    defaultEmail = appointmentToView.email ?? ''
+    
+    // Calculate existing appointment duration in minutes
+    const durationMs = appointmentToView.dateEnd.getTime() - 
+      appointmentToView.dateStart.getTime()
+    existingAppointmentDuration = Math.round(durationMs / 60000)
+  }
+
+  // Calculate smart start time for new appointments
+  let smartStartTime: Date | undefined
+  if (!hasAppointment && startHour !== undefined) {
+    const minDuration = getMinimumSlotDuration(appointmentDurations, appointmentPresets)
     const currentTimeFormat: tTimeFormat = {
       hours: startHour,
       minutes: 0
     }
-
-    const matchingAppointment = findMatchingAppointment(appointments,
-      selectedDate,
-      currentTimeFormat)
-
-    if (matchingAppointment !== undefined) {
-      hasAppointment = true
-      defaultTitle = matchingAppointment.title ?? ''
-      defaultDescription = matchingAppointment.description ?? ''
-      defaultName = matchingAppointment.name ?? ''
-      defaultPhone = matchingAppointment.phone ?? ''
-      defaultEmail = matchingAppointment.email ?? ''
-    }
+    smartStartTime = findNextAvailableTime(
+      appointments, 
+      selectedDate, 
+      currentTimeFormat, 
+      minDuration
+    )
   }
 
 
@@ -106,7 +135,13 @@ const AddAppointment = ({
       return false
     }
 
-    return !slotIsBooked(appointments, selectedDate, currentTimeFormat)
+    return slotHasAvailableTime(
+      appointments, 
+      selectedDate, 
+      currentTimeFormat, 
+      appointmentDurations, 
+      appointmentPresets
+    )
   }) : hoursSlot
 
   const defaultHour = startHour ?? availableSlots[0]
@@ -117,6 +152,25 @@ const AddAppointment = ({
   const [phone, setPhone] = useState(defaultPhone)
   const [email, setEmail] = useState(defaultEmail)
   const [sendReminder, setSendReminder] = useState(false)
+  // Set initial duration based on available options or existing appointment
+  const getInitialDuration = () => {
+    // If viewing an existing appointment, use its duration
+    if (hasAppointment) {
+      return existingAppointmentDuration
+    }
+    
+    if (appointmentPresets && appointmentPresets.length > 0) {
+      return appointmentPresets[0].duration
+    }
+
+    if (appointmentDurations && appointmentDurations.length > 0) {
+      return appointmentDurations[0]
+    }
+
+    return DEFAULT_SLOT_DURATION
+  }
+  
+  const [selectedDuration, setSelectedDuration] = useState<number>(getInitialDuration())
 
   const [errors, setErrors] = useState<tAppoinmentErrors>({})
 
@@ -161,12 +215,36 @@ const AddAppointment = ({
       return
     }
 
-    const endHour = selectedHour + 1
-    const startDate = new Date(selectedDate)
-    const endDate = new Date(selectedDate)
+    // Use smart start time if available, otherwise use the selected hour
+    const startDate = smartStartTime ? new Date(smartStartTime) : new Date(selectedDate)
+    if (!smartStartTime) {
+      startDate.setHours(selectedHour, 0)
+    }
+    
+    const endDate = new Date(startDate)
+    // selectedDuration is in minutes
+    endDate.setTime(startDate.getTime() + selectedDuration * 60000)
 
-    startDate.setHours(selectedHour, 0)
-    endDate.setHours(endHour, 0)
+    // Check for appointment conflicts with custom duration
+    const hasConflict = appointments.some((appointment) => {
+      const existingStart = appointment.dateStart.getTime()
+      const existingEnd = appointment.dateEnd.getTime()
+      const newStart = startDate.getTime()
+      const newEnd = endDate.getTime()
+
+      // Check if new appointment overlaps with existing appointment
+      return (newStart < existingEnd && newEnd > existingStart)
+    })
+
+    if (hasConflict) {
+      _errors.title = translate('errors.appointmentConflict', locale, providedKeys)
+      hasErrors = true
+    }
+
+    if (hasErrors) {
+      setErrors(_errors)
+      return
+    }
     const newAppointment: tAppointment = {
       title,
       name,
@@ -188,8 +266,26 @@ const AddAppointment = ({
   const bookLabel = translate('appointment.book', locale, providedKeys)
   const cancelLabel = translate('appointment.cancel', locale, providedKeys)
   const sendConfirmationLabel = translate('appointment.sendConfirmation', locale, providedKeys)
+  const durationLabel = translate('appointment.duration', locale, providedKeys)
 
   const formClass = isMobile ? 'appointment-form-mobile' : 'flex gap-4'
+
+  const hasDurations = appointmentDurations && appointmentDurations.length > 0
+  const hasPresets = appointmentPresets && appointmentPresets.length > 0
+  const showDurationSelector = hasDurations || hasPresets
+
+  const handleDurationChange = (value: string) => {
+    const duration = parseInt(value, 10)
+    setSelectedDuration(duration)
+  }
+
+  const handlePresetChange = (value: string) => {
+    const preset = appointmentPresets?.find(p => p.name === value)
+
+    if (preset) {
+      setSelectedDuration(preset.duration)
+    }
+  }
 
   const onChange = () => {
     const updated = !sendReminder
@@ -248,8 +344,40 @@ const AddAppointment = ({
           hoursSlot={availableSlots}
           locale={locale}
           providedKeys={providedKeys}
+          duration={selectedDuration}
+          smartStartTime={smartStartTime}
         />
       </div>
+      {showDurationSelector && (
+        <div className="flex flex-col gap-2 w-full">
+          <span className='font-semibold'>{durationLabel}</span>
+          <select 
+            value={hasPresets 
+              ? appointmentPresets?.find(p => p.duration === selectedDuration)?.name || '' 
+              : selectedDuration.toString()}
+            onChange={(e) => hasPresets 
+              ? handlePresetChange(e.target.value) 
+              : handleDurationChange(e.target.value)}
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 
+              focus:ring-blue-500"
+            disabled={hasAppointment}
+          >
+            {hasPresets ? (
+              appointmentPresets?.map((preset) => (
+                <option key={preset.name} value={preset.name}>
+                  {preset.name}
+                </option>
+              ))
+            ) : (
+              appointmentDurations?.map((duration) => (
+                <option key={duration} value={duration.toString()}>
+                  {duration} {translate('general.minutes', locale, providedKeys)}
+                </option>
+              ))
+            )}
+          </select>
+        </div>
+      )}
       {showReminderToggle && 
       <label className="inline-flex items-center mb-5 cursor-pointer">
         <input type="checkbox" 

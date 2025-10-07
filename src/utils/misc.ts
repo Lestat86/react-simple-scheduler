@@ -1,5 +1,6 @@
 import { format } from "date-fns"
-import { tAppointment, tDay, tTimeExclusion, tTimeFormat } from "../types/data-types"
+import { tAppointment, tAppointmentPreset, tDay, tTimeExclusion, tTimeFormat } from "../types/data-types"
+import { DEFAULT_SLOT_DURATION } from "../constants/misc"
 
 export const notNullishCheck = (value: unknown): value is NonNullable<unknown> => {
   if (value === null || value === undefined || value === '') {
@@ -75,4 +76,201 @@ export const dayHasAppointments = (appointments: tAppointment[], currentDate: Da
   })
 
   return found
+}
+
+// Get minimum slot duration from configuration
+export const getMinimumSlotDuration = (
+  appointmentDurations?: number[],
+  appointmentPresets?: tAppointmentPreset[]
+): number => {
+  let minDuration = DEFAULT_SLOT_DURATION
+
+  if (appointmentDurations && appointmentDurations.length > 0) {
+    minDuration = Math.min(...appointmentDurations)
+  }
+
+  if (appointmentPresets && appointmentPresets.length > 0) {
+    const presetDurations = appointmentPresets.map(preset => preset.duration)
+    const minPresetDuration = Math.min(...presetDurations)
+    
+    minDuration = Math.min(minDuration, minPresetDuration)
+  }
+
+  return minDuration
+}
+
+// Check if there's enough free time in a slot for the minimum duration
+export const slotHasAvailableTime = (
+  appointments: tAppointment[],
+  currentDate: Date,
+  currentValue: tTimeFormat,
+  appointmentDurations?: number[],
+  appointmentPresets?: tAppointmentPreset[]
+): boolean => {
+  const minDuration = getMinimumSlotDuration(appointmentDurations, appointmentPresets)
+  
+  // Create time bounds for the current hour slot (e.g., 10:00 to 11:00)
+  const slotStart = new Date(currentDate)
+  slotStart.setHours(currentValue.hours, 0, 0, 0)
+  
+  const slotEnd = new Date(currentDate)
+  slotEnd.setHours(currentValue.hours + 1, 0, 0, 0)
+  
+  // Get all appointments that overlap with this hour slot
+  const overlappingAppointments = appointments.filter((appointment) => {
+    const appointmentStart = appointment.dateStart.getTime()
+    const appointmentEnd = appointment.dateEnd.getTime()
+    const slotStartTime = slotStart.getTime()
+    const slotEndTime = slotEnd.getTime()
+    
+    // Check if appointment overlaps with the slot
+    return appointmentStart < slotEndTime && appointmentEnd > slotStartTime
+  })
+  
+  // If no appointments in this slot, it's available
+  if (overlappingAppointments.length === 0) {
+    return true
+  }
+  
+  // Sort appointments by start time
+  overlappingAppointments.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime())
+  
+  // Check for gaps between appointments and at the beginning/end
+  let lastEndTime = slotStart.getTime()
+  
+  for (const appointment of overlappingAppointments) {
+    const appointmentStartTime = Math.max(appointment.dateStart.getTime(), slotStart.getTime())
+    
+    // Check gap before this appointment
+    const gapDuration = appointmentStartTime - lastEndTime
+    if (gapDuration >= minDuration * 60000) { // minDuration is in minutes
+      return true
+    }
+    
+    lastEndTime = Math.max(lastEndTime, appointment.dateEnd.getTime())
+  }
+  
+  // Check gap after the last appointment
+  const finalGap = slotEnd.getTime() - lastEndTime
+  if (finalGap >= minDuration * 60000) {
+    return true
+  }
+  
+  return false
+}
+
+// Get all appointments that overlap with a specific hour slot
+export const getAppointmentsInSlot = (
+  appointments: tAppointment[],
+  currentDate: Date,
+  currentValue: tTimeFormat
+): tAppointment[] => {
+  // Create time bounds for the current hour slot (e.g., 10:00 to 11:00)
+  const slotStart = new Date(currentDate)
+  slotStart.setHours(currentValue.hours, 0, 0, 0)
+  
+  const slotEnd = new Date(currentDate)
+  slotEnd.setHours(currentValue.hours + 1, 0, 0, 0)
+  
+  // Get all appointments that overlap with this hour slot
+  return appointments.filter((appointment) => {
+    const appointmentStart = appointment.dateStart.getTime()
+    const appointmentEnd = appointment.dateEnd.getTime()
+    const slotStartTime = slotStart.getTime()
+    const slotEndTime = slotEnd.getTime()
+    
+    // Check if appointment overlaps with the slot
+    return appointmentStart < slotEndTime && appointmentEnd > slotStartTime
+  })
+}
+
+// Check if an appointment should be rendered in the current slot (for cross-slot appointments)
+export const shouldRenderAppointmentInSlot = (
+  appointment: tAppointment,
+  currentDate: Date,
+  currentValue: tTimeFormat
+): boolean => {
+  // Create time bounds for the current hour slot
+  const slotStart = new Date(currentDate)
+  slotStart.setHours(currentValue.hours, 0, 0, 0)
+  
+  const appointmentStartHour = appointment.dateStart.getHours()
+  const appointmentStartDate = new Date(appointment.dateStart)
+  appointmentStartDate.setHours(appointmentStartHour, 0, 0, 0)
+  
+  // Only render in the slot where the appointment starts
+  return slotStart.getTime() === appointmentStartDate.getTime() &&
+         currentDate.toDateString() === appointment.dateStart.toDateString()
+}
+
+// Calculate the total height span for cross-slot appointments
+export const calculateCrossSlotHeight = (
+  appointment: tAppointment
+): { height: number; slotSpan: number } => {
+  // Get appointment duration in milliseconds
+  const appointmentDuration = appointment.dateEnd.getTime() - appointment.dateStart.getTime()
+  
+  // One hour in milliseconds
+  const oneHour = 60 * 60 * 1000
+  
+  // Calculate how many slots this appointment spans
+  const slotSpan = Math.ceil(appointmentDuration / oneHour)
+  
+  // Calculate the total height as percentage (each slot is 100%)
+  const height = (appointmentDuration / oneHour) * 100
+  
+  return { height, slotSpan }
+}
+
+// Find the next available start time within a slot
+export const findNextAvailableTime = (
+  appointments: tAppointment[],
+  currentDate: Date,
+  currentValue: tTimeFormat,
+  minDuration: number = 30 // minimum duration in minutes for the new appointment
+): Date => {
+  // Create time bounds for the current hour slot
+  const slotStart = new Date(currentDate)
+  slotStart.setHours(currentValue.hours, 0, 0, 0)
+  
+  const slotEnd = new Date(currentDate)
+  slotEnd.setHours(currentValue.hours + 1, 0, 0, 0)
+  
+  // Get all appointments that overlap with this hour slot, sorted by start time
+  const overlappingAppointments = getAppointmentsInSlot(appointments, currentDate, currentValue)
+    .sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime())
+  
+  // If no appointments, start at the beginning of the slot
+  if (overlappingAppointments.length === 0) {
+    return slotStart
+  }
+  
+  // Check if there's enough space at the beginning
+  const firstAppointmentStart = overlappingAppointments[0].dateStart.getTime()
+  const gapAtStart = firstAppointmentStart - slotStart.getTime()
+  if (gapAtStart >= minDuration * 60000) {
+    return slotStart
+  }
+  
+  // Check gaps between appointments
+  for (let i = 0; i < overlappingAppointments.length - 1; i++) {
+    const currentEnd = overlappingAppointments[i].dateEnd.getTime()
+    const nextStart = overlappingAppointments[i + 1].dateStart.getTime()
+    
+    if (nextStart - currentEnd >= minDuration * 60000) {
+      return new Date(currentEnd)
+    }
+  }
+  
+  // Check if there's enough space at the end
+  const lastAppointmentEnd = overlappingAppointments[
+    overlappingAppointments.length - 1
+  ].dateEnd.getTime()
+  const gapAtEnd = slotEnd.getTime() - lastAppointmentEnd
+  if (gapAtEnd >= minDuration * 60000) {
+    return new Date(lastAppointmentEnd)
+  }
+  
+  // If no space available, return the start of the slot as fallback
+  return slotStart
 }

@@ -31,6 +31,13 @@ const defaultKeys: tLocaleKeysMap = {
     "fr": "Attention: aucun créneau disponible pour le jour sélectionné.",
     "es": "Atención: no hay espacios disponibles para el día seleccionado."
   },
+  "errors.appointmentConflict": {
+    "it": "L'appuntamento entra in conflitto con uno esistente.",
+    "en": "Appointment conflicts with an existing one.",
+    "de": "Termin steht in Konflikt mit einem bestehenden Termin.",
+    "fr": "Le rendez-vous entre en conflit avec un existant.",
+    "es": "La cita entra en conflicto con una existente."
+  },
   "appointment.title": {
     "it": "Titolo",
     "en": "Title",
@@ -156,6 +163,20 @@ const defaultKeys: tLocaleKeysMap = {
     "de": "",
     "fr": "",
     "es": ""
+  },
+  "appointment.duration": {
+    "it": "Durata",
+    "en": "Duration",
+    "de": "Dauer",
+    "fr": "Durée",
+    "es": "Duración"
+  },
+  "general.minutes": {
+    "it": "minuti",
+    "en": "minutes",
+    "de": "Minuten",
+    "fr": "minutes",
+    "es": "minutos"
   }
 } as const
 
