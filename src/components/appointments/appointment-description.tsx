@@ -22,20 +22,20 @@ const AppointmentDescription = ({
     }
 
     const selectClasses = `
-      w-full px-5 py-4 mt-1 text-gray-900 bg-white border border-gray-200 rounded-lg
+      w-full px-5 py-4 mt-1 text-scheduler-neutral-900 bg-white border border-scheduler-neutral-200 rounded-lg
       transition-all duration-200 ease-in-out
-      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-      hover:border-gray-300
-      disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
+      focus:outline-none focus:ring-2 focus:ring-scheduler-primary-500 focus:border-transparent
+      hover:border-scheduler-neutral-300
+      disabled:bg-scheduler-neutral-50 disabled:text-scheduler-neutral-500 disabled:cursor-not-allowed
       cursor-pointer min-h-[52px]
     `.trim().replace(/\s+/g, ' ')
 
     return (
       <div className="flex flex-col">
-        <label className='font-medium text-gray-700 text-sm mb-1'>Motivo</label>
-        <select 
-          name="appointmentReasons" 
-          id="appointmentReasons" 
+        <label className='font-medium text-scheduler-neutral-700 text-sm mb-1'>Motivo</label>
+        <select
+          name="appointmentReasons"
+          id="appointmentReasons"
           onChange={onDescriptionChange}
           className={selectClasses}
           disabled={disabled}

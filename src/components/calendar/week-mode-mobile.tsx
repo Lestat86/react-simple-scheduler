@@ -81,35 +81,35 @@ const WeekModeMobile = ({
 
   return (
     <div className="slots-container-mobile">
-      <div 
+      <div
         ref={headerRef}
-        className="flex bg-gray-50 border-b border-gray-200 overflow-x-auto header-scroll-hidden"
+        className="flex bg-scheduler-neutral-50 border-b border-scheduler-neutral-200 overflow-x-auto header-scroll-hidden"
       >
         {
           reorderedDays.map((dayDate, idx) => {
             const dateLocale = localeMap[locale as keyof typeof localeMap] || localeMap['en']
             const dayName = format(dayDate, 'iii', { locale: dateLocale })
             const dayNumber = getDate(dayDate)
-            
+
             const todayStart = startOfDay(new Date())
             const currentValueDayStart = startOfDay(dayDate)
             const isExcluded = config.dayExclusions?.includes(dayDate.getDay() as tDay)
             const pastExcluded = limitPastDates ? currentValueDayStart < todayStart : false
             const canClick = !isExcluded && !pastExcluded && dayClickFun
-            
+
             const handleDayClick = () => {
               if (canClick) {
                 dayClickFun!(dayDate)
               }
             }
-            
+
             return (
-              <div 
+              <div
                 key={`header_${idx}`}
-                className={`min-w-[30%] flex-shrink-0 mx-[1.67%] text-center p-2 ${canClick ? 'cursor-pointer hover:bg-gray-100' : 'cursor-default'}`}
+                className={`min-w-[30%] flex-shrink-0 mx-[1.67%] text-center p-2 ${canClick ? 'cursor-pointer hover:bg-scheduler-neutral-100' : 'cursor-default'}`}
                 onClick={handleDayClick}
               >
-                <div className="text-xs font-medium text-gray-600 uppercase">{dayName}</div>
+                <div className="text-xs font-medium text-scheduler-neutral-600 uppercase">{dayName}</div>
                 <div className="text-sm font-bold">{dayNumber}</div>
               </div>
             )

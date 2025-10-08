@@ -351,15 +351,15 @@ const AddAppointment = ({
       {showDurationSelector && (
         <div className="flex flex-col gap-2 w-full">
           <span className='font-semibold'>{durationLabel}</span>
-          <select 
-            value={hasPresets 
-              ? appointmentPresets?.find(p => p.duration === selectedDuration)?.name || '' 
+          <select
+            value={hasPresets
+              ? appointmentPresets?.find(p => p.duration === selectedDuration)?.name || ''
               : selectedDuration.toString()}
-            onChange={(e) => hasPresets 
-              ? handlePresetChange(e.target.value) 
+            onChange={(e) => hasPresets
+              ? handlePresetChange(e.target.value)
               : handleDurationChange(e.target.value)}
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 
-              focus:ring-blue-500"
+            className="p-2 border border-scheduler-neutral-300 rounded-md focus:outline-none focus:ring-2
+              focus:ring-scheduler-primary-500"
             disabled={hasAppointment}
           >
             {hasPresets ? (

@@ -28,7 +28,7 @@ const Modal = ({ children,
     ? "bg-white p-4 z-40 w-[95vw] max-h-[85vh] overflow-y-auto mx-2 rounded-lg"
     : "bg-white p-4 z-40 max-w-[90vw] max-h-[90vh] overflow-hidden m-4"
   
-  const containerClass = "absolute top-0 left-0 bottom-0 right-0 bg-gray-900/75 flex justify-center items-center z-30"
+  const containerClass = "absolute top-0 left-0 bottom-0 right-0 bg-scheduler-neutral-900/75 flex justify-center items-center z-30"
 
   return (
     <div className={containerClass} onClick={closeFun}>

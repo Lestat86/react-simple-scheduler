@@ -94,7 +94,7 @@ const HourSlot = ({
 
   if (isMobile) {
     return (
-      <div className='p-2 w-full h-16 border border-gray-200 flex items-center justify-center shrink-0 relative mb-1'>
+      <div className='p-2 w-full h-16 border border-scheduler-neutral-200 flex items-center justify-center shrink-0 relative mb-1'>
         <div className={className} onClick={onClick} />
         <span className='font-semibold text-xs'>
           {currentValue.hours}:00 - {currentValue.hours + 1}:00
@@ -114,7 +114,7 @@ const HourSlot = ({
   }
 
   return (
-    <div className='p-4 w-20 h-20 border border-gray-200 flex items-center justify-center shrink-0 relative'>
+    <div className='p-4 w-20 h-20 border border-scheduler-neutral-200 flex items-center justify-center shrink-0 relative'>
       <div className={className} onClick={onClick} />
       <span className='font-semibold text-sm'>
         {currentValue.hours} - {currentValue.hours + 1}

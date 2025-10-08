@@ -82,13 +82,13 @@ const DayComponent = ({ isWeek,
     
     let statusIndicatorClass = 'w-6 h-6 rounded-full border-2 '
     if (isExcluded) {
-      statusIndicatorClass += 'bg-red-200 border-red-400'
+      statusIndicatorClass += 'bg-scheduler-danger-200 border-scheduler-danger-400'
     } else if (hasAppointment) {
-      statusIndicatorClass += 'bg-blue-200 border-blue-400'
+      statusIndicatorClass += 'bg-scheduler-primary-200 border-scheduler-primary-400'
     } else if (pastExcluded) {
-      statusIndicatorClass += 'bg-gray-200 border-gray-400'
+      statusIndicatorClass += 'bg-scheduler-neutral-200 border-scheduler-neutral-400'
     } else {
-      statusIndicatorClass += 'bg-green-100 border-green-400'
+      statusIndicatorClass += 'bg-scheduler-success-100 border-scheduler-success-400'
     }
     
     return (
@@ -105,7 +105,7 @@ const DayComponent = ({ isWeek,
   if (isMobile && isWeek) {
     return (
       <div className={classNameOuter}>
-        <div className="p-2 w-full h-16 border border-gray-200 flex items-center justify-center relative">
+        <div className="p-2 w-full h-16 border border-scheduler-neutral-200 flex items-center justify-center relative">
           <div className={classNameInner} onClick={onClick} />
           <span className='font-bold text-sm'>
             {getDate(currentValue)}

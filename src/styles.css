@@ -1,15 +1,56 @@
 @import "tailwindcss";
 
+/*
+ * Tailwind v4 Custom Theme
+ * Define color variables that can be customized by end users
+ */
+@theme {
+  /* Primary colors - used for buttons, selections, appointments */
+  --color-scheduler-primary-50: #eff6ff;
+  --color-scheduler-primary-200: #bfdbfe;
+  --color-scheduler-primary-400: #60a5fa;
+  --color-scheduler-primary-500: #3b82f6;
+  --color-scheduler-primary-600: #2563eb;
+  --color-scheduler-primary-800: #1e40af;
+
+  /* Success/Available colors - used for available slots */
+  --color-scheduler-success-100: #dcfce7;
+  --color-scheduler-success-400: #4ade80;
+
+  /* Danger/Excluded colors - used for excluded slots and errors */
+  --color-scheduler-danger-200: #fecaca;
+  --color-scheduler-danger-300: #fca5a5;
+  --color-scheduler-danger-400: #f87171;
+  --color-scheduler-danger-600: #dc2626;
+
+  /* Warning/Partial colors - used for partially booked slots */
+  --color-scheduler-warning-200: #fef08a;
+
+  /* Accent colors - used for specific actions */
+  --color-scheduler-accent-400: #fb923c;
+
+  /* Neutral colors - used for UI elements, borders, text */
+  --color-scheduler-neutral-50: #f9fafb;
+  --color-scheduler-neutral-100: #f3f4f6;
+  --color-scheduler-neutral-200: #e5e7eb;
+  --color-scheduler-neutral-300: #d1d5db;
+  --color-scheduler-neutral-400: #9ca3af;
+  --color-scheduler-neutral-500: #6b7280;
+  --color-scheduler-neutral-600: #4b5563;
+  --color-scheduler-neutral-700: #374151;
+  --color-scheduler-neutral-900: #111827;
+}
+
 .button-primary {
-  @apply bg-blue-200 uppercase px-2 py-1 text-white font-semibold cursor-pointer;
+  @apply bg-scheduler-primary-200 uppercase px-2 py-1 text-white font-semibold cursor-pointer;
 }
 
 .button-outlined {
-  @apply border-blue-200 uppercase px-2 py-1 text-blue-200 font-semibold cursor-pointer;
+  @apply border-scheduler-primary-200 uppercase px-2 py-1 text-scheduler-primary-200 font-semibold cursor-pointer;
 }
 
 .button-danger {
-  @apply bg-orange-400 text-white uppercase px-2 py-1 font-semibold cursor-pointer;
+  @apply bg-scheduler-accent-400 text-white uppercase px-2 py-1 font-semibold cursor-pointer;
 }
 
 .month-view {
@@ -25,10 +66,10 @@
 }
 
 .calendar-day {
-  @apply z-10 absolute top-0 bottom-0 right-0 left-0 bg-green-100/15 cursor-pointer;
+  @apply z-10 absolute top-0 bottom-0 right-0 left-0 bg-scheduler-success-100/15 cursor-pointer;
 
   &.excluded {
-    @apply bg-red-200/75 cursor-not-allowed;
+    @apply bg-scheduler-danger-200/75 cursor-not-allowed;
   }
 
   &.past-excluded {
@@ -36,19 +77,19 @@
   }
 
   &.booked {
-    @apply bg-blue-200/15;
+    @apply bg-scheduler-primary-200/15;
   }
 
   &.partial-booked {
-    @apply bg-yellow-200/15 cursor-pointer;
+    @apply bg-scheduler-warning-200/15 cursor-pointer;
   }
 }
 
 .hour-slot {
-  @apply z-10 absolute top-0 bottom-0 right-0 left-0 bg-green-100/15 cursor-pointer;
+  @apply z-10 absolute top-0 bottom-0 right-0 left-0 bg-scheduler-success-100/15 cursor-pointer;
 
   &.excluded {
-    @apply bg-red-200/75 cursor-not-allowed;
+    @apply bg-scheduler-danger-200/75 cursor-not-allowed;
   }
 
   &.past-excluded {
@@ -56,16 +97,16 @@
   }
 
   &.booked {
-    @apply bg-blue-200/15;
+    @apply bg-scheduler-primary-200/15;
   }
 
   &.partial-booked {
-    @apply bg-yellow-200/15 cursor-pointer;
+    @apply bg-scheduler-warning-200/15 cursor-pointer;
   }
 }
 
 .day-component {
-  @apply p-4 w-20 h-20 border border-gray-200 flex items-center justify-center relative;
+  @apply p-4 w-20 h-20 border border-scheduler-neutral-200 flex items-center justify-center relative;
 
   &.week {
     @apply px-4 w-20 h-10;
@@ -176,18 +217,18 @@
   }
   
   .month-day-mobile {
-    @apply flex items-center justify-between p-4 border border-gray-200 rounded-lg;
+    @apply flex items-center justify-between p-4 border border-scheduler-neutral-200 rounded-lg;
     width: calc(50% - 6px);
   }
-  
+
   .month-day-info {
     @apply flex flex-col;
   }
-  
+
   .month-day-name {
-    @apply text-sm font-medium text-gray-600;
+    @apply text-sm font-medium text-scheduler-neutral-600;
   }
-  
+
   .month-day-number {
     @apply text-lg font-bold;
   }
@@ -206,27 +247,27 @@
 }
 
 .appointment-block {
-  @apply absolute left-0 right-0 z-30 bg-blue-500 text-white text-xs p-1 cursor-pointer 
-         overflow-hidden rounded-sm shadow-sm hover:bg-blue-600 transition-colors;
+  @apply absolute left-0 right-0 z-30 bg-scheduler-primary-500 text-white text-xs p-1 cursor-pointer
+         overflow-hidden rounded-sm shadow-sm hover:bg-scheduler-primary-600 transition-colors;
   pointer-events: auto;
-  
+
   .appointment-block-content {
     @apply flex items-center justify-center h-full;
   }
-  
+
   .appointment-title {
     @apply truncate font-medium;
   }
 }
 
 .appointment-block-mobile {
-  @apply absolute left-0 right-0 z-20 bg-blue-500 text-white text-xs p-1 cursor-pointer 
-         overflow-hidden rounded-sm shadow-sm hover:bg-blue-600 transition-colors;
-  
+  @apply absolute left-0 right-0 z-20 bg-scheduler-primary-500 text-white text-xs p-1 cursor-pointer
+         overflow-hidden rounded-sm shadow-sm hover:bg-scheduler-primary-600 transition-colors;
+
   .appointment-block-content-mobile {
     @apply flex items-center justify-center h-full;
   }
-  
+
   .appointment-title-mobile {
     @apply truncate font-medium;
   }
