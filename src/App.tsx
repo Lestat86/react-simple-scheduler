@@ -6,6 +6,7 @@ import { exampleAppointments, exampleConfig } from './utils/mocks'
 import './styles.css'
 import Button from './components/button'
 import { VIEW_MODES } from './types/misc'
+import ColorCustomizer from './components/color-customizer/color-customizer'
 
 const loremipsum =  `
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed scelerisque, risus id sagittis hendrerit, turpis diam scelerisque augue, in imperdiet dolor metus ac turpis. Duis lobortis justo quis nisi consequat, id malesuada enim vehicula. Cras fringilla blandit risus eu mattis. Sed vel quam vel mauris pharetra varius non in quam. Aenean laoreet sed eros in posuere. In rutrum mi ut neque dictum tristique. Pellentesque pharetra, mi sed dignissim ornare, mi libero tincidunt dui, a commodo risus libero eu enim. Donec massa nibh, ultrices quis odio ut, fringilla ultrices risus.
@@ -33,23 +34,56 @@ function App() {
   const toggleVertical = () => setVertical(!vertical)
   const selectedDirection = vertical ? 'Horizontal' : 'Vertical'
 
+  // const appointmentsDuration = [10,20,45,60]
+  // const appointmentsSS = [{
+  //   name: "taglio",
+  //   duration: 45,
+  // },
+  //   {
+  //     name: 'piega',
+  //     duration: 60
+  //   }]
+  const [showCustomizer, setShowCustomizer] = useState(true)
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-screen">
-      <div className="flex gap-3">
-        <span className="text-xl">pippo</span>
-        <Button onClick={toggleVertical} caption={selectedDirection} />
+    <div className="w-screen min-h-screen overflow-auto bg-gray-50">
+      <div className="w-full p-4 space-y-4">
+        <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow">
+          <h1 className="text-2xl font-bold">React Tiny Simple Scheduler - Demo</h1>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => setShowCustomizer(!showCustomizer)}
+              caption={showCustomizer ? '📅 Hide Customizer' : '🎨 Show Customizer'}
+            />
+            <Button onClick={toggleVertical} caption={selectedDirection} />
+          </div>
+        </div>
+
+        <div className={`grid gap-4 ${showCustomizer ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          <div className="bg-white p-6 rounded-lg shadow overflow-auto">
+            <h2 className="text-xl font-semibold mb-4">📅 Live Preview</h2>
+            <CalendarContainer
+              appointments={appointments}
+              addAppointmentFun={addAppointmentFun}
+              config={exampleConfig}
+              limitPastDates
+              vertical={vertical}
+              showReminderCheck={true}
+              privacyDoc={loremipsum}
+              showEmail={true}
+              viewModes={VIEW_MODES.BOTH}
+              // appointmentDurations={appointmentsDuration}
+              // appointmentPresets={appointmentsSS}
+            />
+          </div>
+
+          {showCustomizer && (
+            <div className="overflow-auto">
+              <ColorCustomizer />
+            </div>
+          )}
+        </div>
       </div>
-      <CalendarContainer
-        appointments={appointments}
-        addAppointmentFun={addAppointmentFun}
-        config={exampleConfig}
-        limitPastDates
-        vertical={vertical}
-        showReminderCheck={true}
-        privacyDoc={loremipsum}
-        showEmail={true}
-        viewModes={VIEW_MODES.BOTH}
-      />
     </div>
   )
 }
