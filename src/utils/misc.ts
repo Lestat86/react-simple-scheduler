@@ -274,3 +274,39 @@ export const findNextAvailableTime = (
   // If no space available, return the start of the slot as fallback
   return slotStart
 }
+
+// Get available minutes for a specific hour considering appointments and duration
+export const getAvailableMinutes = (
+  appointments: tAppointment[],
+  currentDate: Date,
+  selectedHour: number,
+  duration: number // duration in minutes
+): number[] => {
+  const availableMinutes: number[] = []
+
+  // Check every 5-minute interval
+  for (let minute = 0; minute < 60; minute += 5) {
+    const startTime = new Date(currentDate)
+    startTime.setHours(selectedHour, minute, 0, 0)
+
+    const endTime = new Date(startTime)
+    endTime.setTime(startTime.getTime() + duration * 60000)
+
+    // Check if this time range conflicts with any existing appointment
+    const hasConflict = appointments.some((appointment) => {
+      const existingStart = appointment.dateStart.getTime()
+      const existingEnd = appointment.dateEnd.getTime()
+      const newStart = startTime.getTime()
+      const newEnd = endTime.getTime()
+
+      // Check if new appointment overlaps with existing appointment
+      return (newStart < existingEnd && newEnd > existingStart)
+    })
+
+    if (!hasConflict) {
+      availableMinutes.push(minute)
+    }
+  }
+
+  return availableMinutes
+}

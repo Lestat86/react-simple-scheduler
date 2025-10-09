@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { tAppointment, tAppointmentPreset, tConfiguration, tDay, tHours, tTimeFormat } from '../../types/data-types'
+import { useState, useEffect } from 'react'
+import { tAppointment, tAppointmentPreset, tConfiguration, tDay, tHours, tMinutes, tTimeFormat } from '../../types/data-types'
 import Button from '../button'
 import { BUTTON_VARIANTS } from '../../constants/ui'
 import TimePicker from './time-picker'
-import { findMatchingAppointment, isTimeExcluded, notNullishCheck, slotHasAvailableTime, findNextAvailableTime, getMinimumSlotDuration } from '../../utils/misc'
+import { findMatchingAppointment, isTimeExcluded, notNullishCheck, slotHasAvailableTime, findNextAvailableTime, getMinimumSlotDuration, getAvailableMinutes } from '../../utils/misc'
 import InputWithError from '../input-with-error'
 import { tAppoinmentErrors } from '../../types/misc'
 import AppointmentDescription from './appointment-description'
@@ -55,7 +55,16 @@ const AddAppointment = ({
   selectedAppointment,
   forceNewAppointment
 }: Props) => {
-  const canSelectTime = startHour === undefined
+  // Allow time selection if:
+  // 1. No startHour provided (month mode), OR
+  // 2. appointmentPresets or appointmentDurations are provided (custom durations enabled)
+  const hasCustomDurations = (
+    appointmentDurations && appointmentDurations.length > 0
+  ) || (
+    appointmentPresets && appointmentPresets.length > 0
+  )
+  
+  const canSelectTime = startHour === undefined || hasCustomDurations
 
   let defaultTitle = ''
   let defaultDescription = ''
@@ -88,18 +97,19 @@ const AddAppointment = ({
     existingAppointmentDuration = Math.round(durationMs / 60000)
   }
 
-  // Calculate smart start time for new appointments
+  // Calculate smart start time for new appointments only when time selection is NOT available
+  // When user can select time manually, don't auto-calculate
   let smartStartTime: Date | undefined
-  if (!hasAppointment && startHour !== undefined) {
+  if (!hasAppointment && startHour !== undefined && !canSelectTime) {
     const minDuration = getMinimumSlotDuration(appointmentDurations, appointmentPresets)
     const currentTimeFormat: tTimeFormat = {
       hours: startHour,
       minutes: 0
     }
     smartStartTime = findNextAvailableTime(
-      appointments, 
-      selectedDate, 
-      currentTimeFormat, 
+      appointments,
+      selectedDate,
+      currentTimeFormat,
       minDuration
     )
   }
@@ -144,8 +154,16 @@ const AddAppointment = ({
     )
   }) : hoursSlot
 
-  const defaultHour = startHour ?? availableSlots[0]
+  // Set initial hour and minute from existing appointment if viewing one
+  const defaultHour = hasAppointment && appointmentToView
+    ? appointmentToView.dateStart.getHours() as tHours
+    : startHour ?? availableSlots[0]
+  const defaultMinute = hasAppointment && appointmentToView
+    ? appointmentToView.dateStart.getMinutes() as tMinutes
+    : 0
+
   const [selectedHour, setSelectedHour] = useState<tHours>(defaultHour)
+  const [selectedMinute, setSelectedMinute] = useState<tMinutes>(defaultMinute)
   const [title, setTitle] = useState(defaultTitle)
   const [description, setDescription] = useState(defaultDescription)
   const [name, setName] = useState(defaultName)
@@ -173,6 +191,26 @@ const AddAppointment = ({
   const [selectedDuration, setSelectedDuration] = useState<number>(getInitialDuration())
 
   const [errors, setErrors] = useState<tAppoinmentErrors>({})
+
+  // Determine if duration selector should be shown
+  const hasDurations = appointmentDurations && appointmentDurations.length > 0
+  const hasPresets = appointmentPresets && appointmentPresets.length > 0
+  const showDurationSelector = hasDurations || hasPresets
+
+  // Calculate available minutes based on selected hour, duration, and existing appointments
+  const availableMinutes = showDurationSelector && !hasAppointment
+    ? getAvailableMinutes(appointments, selectedDate, selectedHour, selectedDuration)
+    : []
+
+  // When duration or hour changes, validate and adjust selectedMinute if needed
+  useEffect(() => {
+    if (showDurationSelector && !hasAppointment && availableMinutes.length > 0) {
+      // If current selected minute is not available, select the first available one
+      if (!availableMinutes.includes(selectedMinute)) {
+        setSelectedMinute(availableMinutes[0] as tMinutes)
+      }
+    }
+  }, [selectedHour, selectedDuration, showDurationSelector, hasAppointment])
 
   const fullyBookedLabel = translate('errors.fullyBooked', locale, providedKeys)
 
@@ -215,12 +253,12 @@ const AddAppointment = ({
       return
     }
 
-    // Use smart start time if available, otherwise use the selected hour
+    // Use smart start time if available, otherwise use the selected hour and minute
     const startDate = smartStartTime ? new Date(smartStartTime) : new Date(selectedDate)
     if (!smartStartTime) {
-      startDate.setHours(selectedHour, 0)
+      startDate.setHours(selectedHour, selectedMinute, 0, 0)
     }
-    
+
     const endDate = new Date(startDate)
     // selectedDuration is in minutes
     endDate.setTime(startDate.getTime() + selectedDuration * 60000)
@@ -269,10 +307,6 @@ const AddAppointment = ({
   const durationLabel = translate('appointment.duration', locale, providedKeys)
 
   const formClass = isMobile ? 'appointment-form-mobile' : 'flex gap-4'
-
-  const hasDurations = appointmentDurations && appointmentDurations.length > 0
-  const hasPresets = appointmentPresets && appointmentPresets.length > 0
-  const showDurationSelector = hasDurations || hasPresets
 
   const handleDurationChange = (value: string) => {
     const duration = parseInt(value, 10)
@@ -338,14 +372,20 @@ const AddAppointment = ({
       <div className="flex flex-col gap-2 w-full">
         <span className='font-semibold'>{dateAndTimeLabel}</span>
         <TimePicker selectedHour={selectedHour}
+          selectedMinute={selectedMinute}
           selectedDate={selectedDate}
           setStartHour={setSelectedHour}
+          setStartMinute={setSelectedMinute}
           canSelectTime={canSelectTime}
           hoursSlot={availableSlots}
           locale={locale}
           providedKeys={providedKeys}
           duration={selectedDuration}
           smartStartTime={smartStartTime}
+          canSelectMinutes={showDurationSelector}
+          canSelectHour={startHour === undefined}
+          availableMinutes={availableMinutes}
+          disabled={hasAppointment}
         />
       </div>
       {showDurationSelector && (
